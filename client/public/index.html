@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f6b3f" />
+    <title>PLACA | Plateau State Agency for the Control of AIDS</title>
+    <meta
+      name="description"
+      content="The Plateau State Agency for the Control of AIDS (PLACA) coordinates the multi-sectoral HIV response across Plateau State's 17 Local Government Areas. See published, counts-only results and learn how partners report."
+    />
+    <meta name="author" content="Plateau State Agency for the Control of AIDS" />
+    <meta name="robots" content="index, follow" />
+    <!--
+      Canonical and hreflang URLs are relative, so they stay correct on any
+      host. When a public domain is assigned, set SITE_URL at build time:
+      `SITE_URL=https://example.gov.ng npm run build` rewrites these tags to
+      absolute URLs and generates sitemap.xml. See README, "Domain and SEO".
+    -->
+    <link rel="canonical" href="/" data-site-url="/" />
+    <link rel="alternate" hreflang="en" href="/?lang=en" data-site-url="/?lang=en" />
+    <link rel="alternate" hreflang="ha" href="/?lang=ha" data-site-url="/?lang=ha" />
+    <link rel="icon" href="/site/logo.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/site/styles.css" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PLACA" />
+    <meta property="og:title" content="PLACA | Plateau State Agency for the Control of AIDS" />
+    <meta
+      property="og:description"
+      content="A coordinated HIV response for every community in Plateau State. Published results are counts only and clearly labelled as reported activity."
+    />
+    <meta
+      property="og:image"
+      content="/site/images/placa-secretariat-jos.jpg"
+      data-site-url="/site/images/placa-secretariat-jos.jpg"
+    />
+    <meta property="og:image:alt" content="PLACA staff at the agency office in Jos" />
+    <!-- og:url is added at build time only when SITE_URL is set, because the
+         Open Graph protocol expects an absolute URL. -->
+    <meta property="og:locale" content="en_NG" />
+    <meta property="og:locale:alternate" content="ha_NG" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:image"
+      content="/site/images/placa-secretariat-jos.jpg"
+      data-site-url="/site/images/placa-secretariat-jos.jpg"
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "GovernmentOrganization",
+        "name": "Plateau State Agency for the Control of AIDS",
+        "alternateName": "PLACA",
+        "areaServed": {
+          "@type": "AdministrativeArea",
+          "name": "Plateau State, Nigeria"
+        },
+        "description": "PLACA coordinates the multi-sectoral HIV and AIDS response across Plateau State's 17 Local Government Areas.",
+        "knowsLanguage": ["en", "ha"]
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <a class="brand" href="/" aria-label="PLACA home">
+          <img src="/site/logo.svg" alt="" width="46" height="46" />
+          <span class="brand-text">
+            <strong>PLACA</strong>
+            <span>Plateau State Agency for the Control of AIDS</span>
+          </span>
+        </a>
+
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="site-nav"
+          data-i18n="nav.menu"
+        >
+          Menu
+        </button>
+
+        <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+          <a href="#about" data-i18n="nav.about">About</a>
+          <a href="#what-we-do" data-i18n="nav.whatWeDo">What we do</a>
+          <a href="#coverage" data-i18n="nav.coverage">Coverage</a>
+          <a href="#results" data-i18n="nav.results">Results</a>
+          <a href="#highlights" data-i18n="nav.highlights">Highlights</a>
+          <a href="#contact" data-i18n="nav.contact">Contact</a>
+
+          <div class="lang-switch" role="group" aria-label="Language">
+            <button type="button" data-lang="en" aria-pressed="true">EN</button>
+            <button type="button" data-lang="ha" aria-pressed="false">HA</button>
+          </div>
+
+          <a class="btn btn-primary btn-small" href="/app/login" data-i18n="nav.signIn">
+            Staff sign in
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow" data-i18n="hero.eyebrow">
+              Plateau State Agency for the Control of AIDS
+            </p>
+            <h1 data-i18n="hero.title">
+              A coordinated HIV response for every community in Plateau State
+            </h1>
+            <p class="hero-intro" data-i18n="hero.intro">
+              PLACA brings government, partners, Local Government AIDS Control
+              Agencies and communities together to prevent new infections,
+              support treatment and care, and track progress with reliable
+              counts.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#results" data-i18n="hero.ctaResults">
+                See published results
+              </a>
+              <a class="btn btn-secondary" href="#about" data-i18n="hero.ctaAbout">
+                Learn about PLACA
+              </a>
+            </div>
+          </div>
+
+          <aside class="hero-panel" aria-label="PLACA at a glance">
+            <figure class="hero-photo">
+              <picture>
+                <source srcset="/site/images/placa-secretariat-jos.webp" type="image/webp" />
+                <img
+                  src="/site/images/placa-secretariat-jos.jpg"
+                  alt="PLACA staff standing in front of the agency office in Jos"
+                  width="900"
+                  height="675"
+                  fetchpriority="high"
+                  decoding="async"
+                />
+              </picture>
+              <figcaption data-i18n="hero.photoCaption">
+                PLACA staff at the secretariat, Jos
+              </figcaption>
+            </figure>
+            <div class="stat">
+              <strong>17</strong>
+              <span data-i18n="hero.stat1Label">Local Government Areas</span>
+            </div>
+            <div class="stat">
+              <strong data-i18n="hero.stat2Value">1</strong>
+              <span data-i18n="hero.stat2Label">state coordination plan</span>
+            </div>
+            <div class="stat">
+              <strong data-i18n="hero.stat3Value">Counts only</strong>
+              <span data-i18n="hero.stat3Label">never names or test results</span>
+            </div>
+            <p class="panel-note" data-i18n="hero.panelNote">
+              Public figures are reported activity, not independently verified
+              fact. They are published only after review.
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="notice" aria-label="Privacy and data notice">
+        <div class="wrap notice-inner">
+          <span class="notice-badge" data-i18n="notice.badge">Counts only</span>
+          <p>
+            <strong data-i18n="notice.title">No names. No addresses. No test results.</strong>
+            <span data-i18n="notice.body">
+              This platform stores aggregate numbers per indicator. It never asks
+              for a beneficiary name, phone number, address or HIV test result.
+            </span>
+          </p>
+        </div>
+      </section>
+
+      <section class="section" id="about">
+        <div class="wrap two-column">
+          <div>
+            <p class="eyebrow" data-i18n="about.eyebrow">About PLACA</p>
+            <h2 data-i18n="about.title">The state agency for the HIV response</h2>
+            <p data-i18n="about.p1">
+              The Plateau State Agency for the Control of AIDS (PLACA) is the
+              state body responsible for coordinating the multi-sectoral HIV and
+              AIDS response. We work with line ministries, development partners,
+              civil society, health facilities, Local Government AIDS Control
+              Agencies (LACAs) and community groups.
+            </p>
+            <p data-i18n="about.p2">
+              Our work covers the whole state: all 17 Local Government Areas,
+              urban and rural. We focus on prevention, testing, linkage to
+              treatment, care and support, and the reliable reporting that helps
+              decisions get made with evidence.
+            </p>
+          </div>
+
+          <div class="info-cards">
+            <article class="info-card">
+              <h3 data-i18n="about.mandateTitle">Our mandate</h3>
+              <p data-i18n="about.mandateBody">
+                Coordinate the state HIV response, align partners around one
+                plan, and report progress transparently to government and the
+                public.
+              </p>
+            </article>
+            <article class="info-card">
+              <h3 data-i18n="about.visionTitle">Our vision</h3>
+              <p data-i18n="about.visionBody">
+                A Plateau State with zero new HIV infections, zero AIDS-related
+                deaths and zero stigma and discrimination.
+              </p>
+            </article>
+            <article class="info-card">
+              <h3 data-i18n="about.missionTitle">Our mission</h3>
+              <p data-i18n="about.missionBody">
+                Use coordination, data and community partnership to expand
+                prevention, treatment and care, especially for people most at
+                risk.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-tint" id="what-we-do">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow" data-i18n="what.eyebrow">What we do</p>
+            <h2 data-i18n="what.title">Four ways we strengthen the response</h2>
+            <p data-i18n="what.intro">
+              PLACA does not deliver every service directly. We make the whole
+              system work better by coordinating, supporting and tracking the
+              organizations that do.
+            </p>
+          </div>
+
+          <div class="card-grid">
+            <article class="feature-card">
+              <span class="feature-icon" aria-hidden="true">01</span>
+              <h3 data-i18n="what.card1Title">Coordination</h3>
+              <p data-i18n="what.card1Body">
+                Bring state ministries, partners and LACAs around shared
+                priorities, workplans and referral pathways.
+              </p>
+            </article>
+            <article class="feature-card">
+              <span class="feature-icon" aria-hidden="true">02</span>
+              <h3 data-i18n="what.card2Title">Data and reporting</h3>
+              <p data-i18n="what.card2Body">
+                Make reporting simple, catch inconsistent counts early, and turn
+                approved reports into useful summaries.
+              </p>
+            </article>
+            <article class="feature-card">
+              <span class="feature-icon" aria-hidden="true">03</span>
+              <h3 data-i18n="what.card3Title">Partner support</h3>
+              <p data-i18n="what.card3Body">
+                Help organizations plan, report and solve problems together,
+                with clear guidance and paper-friendly tools.
+              </p>
+            </article>
+            <article class="feature-card">
+              <span class="feature-icon" aria-hidden="true">04</span>
+              <h3 data-i18n="what.card4Title">Community engagement</h3>
+              <p data-i18n="what.card4Body">
+                Support awareness, reduce stigma and make sure community voices
+                shape the response.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!--
+        Development photographs. These are published images of public PLACA
+        events, used as placeholders until the agency supplies official,
+        approved photographs and confirms consent for every person shown.
+        Sources:
+        - Vanguard, May 2024: /2024/05/plateau-placa-warns-against-laxity-in-hiv-testing-treatment/
+        - Lightbearer News, December 2024: /world-aids-day-placa-sensitizes-citizens-on-stigma-mutfwang-commits-to-support-agency/
+        - Lightbearer News, August 2026: /cbn-staff-support-placas-fight-against-hiv-aids-in-plateau/
+        Keep the same 4:3 crop and alt-text style when replacing.
+      -->
+      <section class="section" id="gallery">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow" data-i18n="gallery.eyebrow">From the field</p>
+            <h2 data-i18n="gallery.title">PLACA in action across Plateau State</h2>
+            <p data-i18n="gallery.intro">
+              Photographs from PLACA events and partner engagements. They show
+              the people and places behind the reported numbers.
+            </p>
+          </div>
+
+          <div class="photo-grid">
+            <figure class="photo-card">
+              <picture>
+                <source srcset="/site/images/world-aids-day-rally.webp" type="image/webp" />
+                <img
+                  src="/site/images/world-aids-day-rally.jpg"
+                  alt="People marching through Jos with a World AIDS Day banner"
+                  width="900"
+                  height="675"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
+              <figcaption>
+                <strong data-i18n="gallery.rallyTitle">World AIDS Day awareness rally</strong>
+                <span data-i18n="gallery.rallyMeta">Jos · December 2024</span>
+              </figcaption>
+            </figure>
+
+            <figure class="photo-card">
+              <picture>
+                <source srcset="/site/images/partner-donation.webp" type="image/webp" />
+                <img
+                  src="/site/images/partner-donation.jpg"
+                  alt="Staff standing with donated supplies outside a Plateau State ministry building"
+                  width="900"
+                  height="675"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
+              <figcaption>
+                <strong data-i18n="gallery.donationTitle">CBN staff donate supplies to PLACA</strong>
+                <span data-i18n="gallery.donationMeta">Jos · August 2026</span>
+              </figcaption>
+            </figure>
+
+            <figure class="photo-card">
+              <picture>
+                <source srcset="/site/images/coordination-meeting.webp" type="image/webp" />
+                <img
+                  src="/site/images/coordination-meeting.jpg"
+                  alt="A PLACA leader speaking at a meeting table with colleagues"
+                  width="900"
+                  height="675"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
+              <figcaption>
+                <strong data-i18n="gallery.meetingTitle">Coordination meeting with partners</strong>
+                <span data-i18n="gallery.meetingMeta">Jos · 2026</span>
+              </figcaption>
+            </figure>
+          </div>
+
+          <p class="photo-note" data-i18n="gallery.note">
+            Photographs are from public PLACA events. No beneficiary is shown, and
+            no individual health information is disclosed.
+          </p>
+        </div>
+      </section>
+
+      <section class="section" id="coverage">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow" data-i18n="coverage.eyebrow">Coverage</p>
+            <h2 data-i18n="coverage.title">All 17 Local Government Areas</h2>
+            <p data-i18n="coverage.intro">
+              PLACA coordinates partners in every LGA of Plateau State. Each LGA
+              has a LACA that supports reporting and local coordination.
+            </p>
+          </div>
+
+          <ul class="lga-list" aria-label="Plateau State Local Government Areas">
+            <li>Barkin Ladi</li>
+            <li>Bassa</li>
+            <li>Bokkos</li>
+            <li>Jos East</li>
+            <li>Jos North</li>
+            <li>Jos South</li>
+            <li>Kanam</li>
+            <li>Kanke</li>
+            <li>Langtang North</li>
+            <li>Langtang South</li>
+            <li>Mangu</li>
+            <li>Mikang</li>
+            <li>Pankshin</li>
+            <li>Qua'an Pan</li>
+            <li>Riyom</li>
+            <li>Shendam</li>
+            <li>Wase</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section section-dark" id="results">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow" data-i18n="results.eyebrow">Published results</p>
+            <h2 data-i18n="results.title">Reported activity across the state</h2>
+            <p data-i18n="results.intro">
+              These figures come from approved reports submitted by partners and
+              LACAs. They are counts, not individual records. Always read them
+              as reported activity, not independently verified fact.
+            </p>
+          </div>
+
+          <div class="results-toolbar">
+            <label class="field">
+              <span data-i18n="results.filterPeriod">Reporting period</span>
+              <select id="period-filter">
+                <option value="" data-i18n="results.allPeriods">All periods</option>
+              </select>
+            </label>
+            <label class="field">
+              <span data-i18n="results.filterIndicator">Indicator</span>
+              <select id="indicator-filter">
+                <option value="" data-i18n="results.allIndicators">All indicators</option>
+              </select>
+            </label>
+            <button class="btn btn-light btn-small" type="button" id="refresh-results" data-i18n="results.refresh">
+              Refresh figures
+            </button>
+            <button class="btn btn-outline-light btn-small" type="button" id="download-csv" hidden data-i18n="results.download">
+              Download CSV
+            </button>
+          </div>
+
+          <div id="results-status" class="results-status" role="status" aria-live="polite">
+            <p data-i18n="results.loading">Loading published figures…</p>
+          </div>
+
+          <div id="results-summary" class="result-summary" hidden>
+            <div class="result-stat">
+              <strong id="stat-indicators">0</strong>
+              <span data-i18n="results.statIndicators">indicators published</span>
+            </div>
+            <div class="result-stat">
+              <strong id="stat-lgas">0</strong>
+              <span data-i18n="results.statLgas">LGAs with figures</span>
+            </div>
+            <div class="result-stat">
+              <strong id="stat-period">—</strong>
+              <span data-i18n="results.statPeriod">latest period</span>
+            </div>
+            <p id="results-generated" class="result-generated"></p>
+          </div>
+
+          <div id="results-table-wrap" class="table-wrap" hidden>
+            <table>
+              <caption data-i18n="results.tableCaption">
+                Published counts by LGA and indicator
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col" data-i18n="results.tableLga">LGA</th>
+                  <th scope="col" data-i18n="results.tableIndicator">Indicator</th>
+                  <th scope="col" data-i18n="results.tablePeriod">Period</th>
+                  <th scope="col" class="numeric" data-i18n="results.tableValue">Count</th>
+                </tr>
+              </thead>
+              <tbody id="results-body"></tbody>
+            </table>
+          </div>
+
+          <div id="results-empty" class="empty-state" hidden>
+            <h3 data-i18n="results.emptyTitle">No published figures yet</h3>
+            <p data-i18n="results.emptyBody">
+              Figures appear here after reports are reviewed, approved and
+              aggregated. This protects privacy and keeps the public summary
+              accurate.
+            </p>
+            <p class="empty-hint" data-i18n="results.emptyHint">
+              Staff can sign in to submit or review reports.
+            </p>
+            <a class="btn btn-primary btn-small" href="/app/login" data-i18n="results.emptyCta">
+              Staff sign in
+            </a>
+          </div>
+
+          <p class="results-note" data-i18n="results.note">
+            Small numbers may be suppressed or rounded to protect individuals.
+            Figures are never broken down below LGA level.
+          </p>
+        </div>
+      </section>
+
+      <!--
+        Programme highlights are curated static content for now, edited in this
+        file. Add a project only after its workplan or report is approved, and
+        keep it to public project names, LGAs, periods and counts. Never add
+        beneficiary-level detail. A later phase can move this block into an
+        admin-managed content table without changing the markup.
+      -->
+      <section class="section" id="highlights">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow" data-i18n="highlights.eyebrow">Programme highlights</p>
+            <h2 data-i18n="highlights.title">Where the response is focused</h2>
+            <p data-i18n="highlights.intro">
+              PLACA and its partners work across the HIV cascade. Published
+              project highlights will be added here as they are approved.
+            </p>
+          </div>
+
+          <div class="card-grid card-grid-three">
+            <article class="feature-card highlight-card">
+              <span class="tag" data-i18n="highlights.tagPrevention">Prevention</span>
+              <h3 data-i18n="highlights.card1Title">Prevention and testing</h3>
+              <p data-i18n="highlights.card1Body">
+                Community outreach, HIV testing services, condom programming and
+                prevention for people at higher risk.
+              </p>
+            </article>
+            <article class="feature-card highlight-card">
+              <span class="tag" data-i18n="highlights.tagTreatment">Treatment</span>
+              <h3 data-i18n="highlights.card2Title">Treatment and care</h3>
+              <p data-i18n="highlights.card2Body">
+                Linkage to antiretroviral therapy, retention in care, and support
+                for children, adolescents and pregnant women.
+              </p>
+            </article>
+            <article class="feature-card highlight-card">
+              <span class="tag" data-i18n="highlights.tagSystems">Systems</span>
+              <h3 data-i18n="highlights.card3Title">Stronger systems</h3>
+              <p data-i18n="highlights.card3Body">
+                Data quality, partner coordination, workplan tracking and
+                community-led monitoring.
+              </p>
+            </article>
+          </div>
+
+          <p class="highlights-note" data-i18n="highlights.note">
+            Project names, locations and results are published only after review.
+            No beneficiary-level information is ever shown.
+          </p>
+        </div>
+      </section>
+
+      <section class="section section-tint" id="how-reporting-works">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow" data-i18n="how.eyebrow">How reporting works</p>
+            <h2 data-i18n="how.title">From a paper tally to a public figure</h2>
+            <p data-i18n="how.intro">
+              The platform is built around the way work is actually done:
+              partners count on paper, enter totals when they have signal, and
+              PLACA reviews before anything is published.
+            </p>
+          </div>
+
+          <ol class="steps">
+            <li>
+              <span class="step-number" aria-hidden="true">1</span>
+              <div>
+                <h3 data-i18n="how.step1Title">Partners and LACAs submit counts</h3>
+                <p data-i18n="how.step1Body">
+                  Each organization reports aggregate numbers for its indicators
+                  for the period. No names or test results are collected.
+                </p>
+              </div>
+            </li>
+            <li>
+              <span class="step-number" aria-hidden="true">2</span>
+              <div>
+                <h3 data-i18n="how.step2Title">PLACA reviews and approves</h3>
+                <p data-i18n="how.step2Body">
+                  Officers check consistency, follow up on unusual numbers and
+                  approve the report. Rejected reports can be corrected and sent
+                  again.
+                </p>
+              </div>
+            </li>
+            <li>
+              <span class="step-number" aria-hidden="true">3</span>
+              <div>
+                <h3 data-i18n="how.step3Title">Approved totals are published</h3>
+                <p data-i18n="how.step3Body">
+                  Only approved, aggregated figures reach this page. The date of
+                  the latest update is always shown.
+                </p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section" id="contact">
+        <div class="wrap contact-grid">
+          <div>
+            <p class="eyebrow" data-i18n="contact.eyebrow">Contact</p>
+            <h2 data-i18n="contact.title">Talk to the PLACA secretariat</h2>
+            <p data-i18n="contact.body">
+              For official enquiries about the state HIV response, partner
+              coordination or reporting, contact the PLACA secretariat in Jos.
+            </p>
+          </div>
+
+          <address class="contact-card">
+            <p>
+              <strong data-i18n="contact.addressLabel">Address</strong>
+              <span data-i18n="contact.address">PLACA Secretariat, Jos, Plateau State, Nigeria</span>
+            </p>
+            <p>
+              <strong data-i18n="contact.hoursLabel">Office hours</strong>
+              <span data-i18n="contact.hours">Monday to Friday, 8:00–16:00</span>
+            </p>
+            <p>
+              <strong data-i18n="contact.staffLabel">Staff and partners</strong>
+              <a href="/app/login" data-i18n="contact.staffLink">Sign in to the reporting platform</a>
+            </p>
+            <p class="contact-note" data-i18n="contact.note">
+              Official phone and email details will be published here. This page
+              never collects beneficiary information.
+            </p>
+          </address>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-grid">
+        <div>
+          <p class="footer-brand">PLACA</p>
+          <p data-i18n="footer.tagline">
+            Plateau State Agency for the Control of AIDS
+          </p>
+        </div>
+        <nav aria-label="Footer navigation">
+          <a href="#about" data-i18n="nav.about">About</a>
+          <a href="#results" data-i18n="nav.results">Results</a>
+          <a href="#contact" data-i18n="nav.contact">Contact</a>
+          <a href="/app/login" data-i18n="nav.signIn">Staff sign in</a>
+        </nav>
+      </div>
+      <div class="wrap footer-bottom">
+        <p data-i18n="footer.counts">
+          Counts only. No beneficiary names, addresses or HIV test results.
+        </p>
+        <p data-i18n="footer.reported">
+          Published figures are reported activity, not independently verified fact.
+        </p>
+      </div>
+    </footer>
+
+    <script src="/site/main.js" defer></script>
+  </body>
+</html>
