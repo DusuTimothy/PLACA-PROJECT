@@ -26,6 +26,7 @@ export default function AppShell({ children }) {
     const segment = location.pathname.split('/')[1] || 'dashboard';
     const names = {
       dashboard: 'nav.dashboard',
+      assistant: 'nav.assistant',
       organizations: 'nav.organizations',
       workplans: 'nav.workplans',
       reports: 'nav.reports',
@@ -50,6 +51,7 @@ export default function AppShell({ children }) {
 
   const items = [
     { to: '/dashboard', key: 'nav.dashboard' },
+    { to: '/assistant', key: 'nav.assistant' },
     ...(canViewProgramme(user?.role)
       ? [
           { to: '/organizations', key: 'nav.organizations' },

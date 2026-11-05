@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
@@ -7,7 +7,8 @@ import { AuthProvider } from '../../context/AuthContext';
 import { LanguageProvider } from '../../context/LanguageContext';
 import { refreshSession } from '../../services/api';
 import { listOrganizations } from '../../services/programmeApi';
-import { createUser, listUsers, resendInvitation } from '../../services/userApi';
+import { createUser, listUsers, resendInvitation, updateUser } from '../../services/userApi';
+import i18n from '../../i18n';
 
 vi.mock('../../services/api', () => ({
   default: { post: vi.fn(), get: vi.fn(), patch: vi.fn() },
@@ -23,6 +24,7 @@ vi.mock('../../services/userApi', () => ({
   listUsers: vi.fn(),
   createUser: vi.fn(),
   resendInvitation: vi.fn(),
+  updateUser: vi.fn(),
 }));
 
 vi.mock('../../services/phase5Api', () => ({
@@ -59,13 +61,20 @@ const mockUsersList = [
   },
 ];
 
-function renderUsersPage({ role = 'placa_officer', initialEntries = ['/users'] } = {}) {
+function renderUsersPage({
+  role = 'placa_officer',
+  initialEntries = ['/users'],
+  userId = 'officer-1',
+  name = 'John Officer',
+  language,
+} = {}) {
   refreshSession.mockResolvedValue({
     accessToken: 'test-token',
     user: {
-      id: 'officer-1',
-      name: 'John Officer',
+      id: userId,
+      name,
       role,
+      ...(language ? { language } : {}),
       must_change_password: false,
     },
   });
@@ -441,6 +450,309 @@ describe('UsersPage', () => {
       expect(
         await screen.findByText('Invitation email resent to existing@pyi.org.')
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('Role management', () => {
+    describe('Visibility for directors and admins versus other roles', () => {
+      it('shows "Change role" button for PLACA Directors on non-admin user cards', async () => {
+        renderUsersPage({ role: 'placa_director' });
+
+        expect(
+          await screen.findByRole('button', { name: /change role/i })
+        ).toBeInTheDocument();
+      });
+
+      it('does not show "Change role" button to PLACA Directors for admin users', async () => {
+        listUsers.mockResolvedValue({
+          data: [
+            {
+              id: 'admin-target',
+              name: 'Admin User',
+              email: 'admin@placa.gov.ng',
+              role: 'admin',
+              is_active: true,
+            },
+          ],
+          pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+        });
+
+        renderUsersPage({ role: 'placa_director' });
+
+        await screen.findByText('Admin User');
+        expect(
+          screen.queryByRole('button', { name: /change role/i })
+        ).not.toBeInTheDocument();
+
+        listUsers.mockResolvedValue({
+          data: mockUsersList,
+          pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+        });
+      });
+
+      it('shows "Change role" button for Admins on other users, including other admins', async () => {
+        listUsers.mockResolvedValue({
+          data: [
+            {
+              id: 'admin-target',
+              name: 'Other Admin',
+              email: 'otheradmin@placa.gov.ng',
+              role: 'admin',
+              is_active: true,
+            },
+          ],
+          pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+        });
+
+        renderUsersPage({ role: 'admin', userId: 'admin-actor' });
+
+        await screen.findByText('Other Admin');
+        expect(
+          screen.getByRole('button', { name: /change role/i })
+        ).toBeInTheDocument();
+
+        listUsers.mockResolvedValue({
+          data: mockUsersList,
+          pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+        });
+      });
+
+      it('does not show "Change role" button to other roles (e.g. PLACA Officer, LACA Officer)', async () => {
+        renderUsersPage({ role: 'placa_officer' });
+
+        await screen.findByText('Existing Staff');
+        expect(
+          screen.queryByRole('button', { name: /change role/i })
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    describe('Allowed role choices', () => {
+      it('allows PLACA Director to select all roles except System admin', async () => {
+        const user = userEvent.setup();
+        renderUsersPage({ role: 'placa_director' });
+
+        const changeRoleBtn = await screen.findByRole('button', { name: /change role/i });
+        await user.click(changeRoleBtn);
+
+        const select = screen.getByLabelText(/^new role/i);
+        const options = within(select)
+          .getAllByRole('option')
+          .map((opt) => opt.textContent);
+
+        expect(options).toContain('Partner staff');
+        expect(options).toContain('LACA officer');
+        expect(options).toContain('PLACA officer');
+        expect(options).toContain('PLACA director');
+        expect(options).not.toContain('System admin');
+      });
+
+      it('allows System Admin to select any existing role, including System admin', async () => {
+        const user = userEvent.setup();
+        renderUsersPage({ role: 'admin', userId: 'admin-actor' });
+
+        const changeRoleBtn = await screen.findByRole('button', { name: /change role/i });
+        await user.click(changeRoleBtn);
+
+        const select = screen.getByLabelText(/^new role/i);
+        const options = within(select)
+          .getAllByRole('option')
+          .map((opt) => opt.textContent);
+
+        expect(options).toContain('Partner staff');
+        expect(options).toContain('LACA officer');
+        expect(options).toContain('PLACA officer');
+        expect(options).toContain('PLACA director');
+        expect(options).toContain('System admin');
+      });
+    });
+
+    describe('Self-role-change prevention', () => {
+      it('prevents users from changing their own role and displays (You) indicator', async () => {
+        listUsers.mockResolvedValue({
+          data: [
+            {
+              id: 'director-1',
+              name: 'Jane Director',
+              email: 'director@placa.gov.ng',
+              role: 'placa_director',
+              is_active: true,
+            },
+          ],
+          pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+        });
+
+        renderUsersPage({ role: 'placa_director', userId: 'director-1', name: 'Jane Director' });
+
+        expect(await screen.findByText('(You)')).toBeInTheDocument();
+        expect(
+          screen.queryByRole('button', { name: /change role/i })
+        ).not.toBeInTheDocument();
+
+        listUsers.mockResolvedValue({
+          data: mockUsersList,
+          pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+        });
+      });
+    });
+
+    describe('Successful role updates and confirmation', () => {
+      it('shows elevated warning and confirmation when assigning elevated role, and updates role successfully', async () => {
+        const user = userEvent.setup();
+        const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+        updateUser.mockResolvedValueOnce({
+          user: {
+            id: 'u-1',
+            name: 'Existing Staff',
+            role: 'placa_officer',
+          },
+        });
+
+        renderUsersPage({ role: 'placa_director' });
+        const changeRoleBtn = await screen.findByRole('button', { name: /change role/i });
+        await user.click(changeRoleBtn);
+
+        const select = screen.getByLabelText(/^new role/i);
+        await user.selectOptions(select, 'placa_officer');
+
+        // Shows elevated warning before saving
+        expect(
+          screen.getByText(/this role grants elevated administrative access across the platform/i)
+        ).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: /save role/i }));
+
+        // Verified confirmation prompt
+        expect(confirmSpy).toHaveBeenCalledWith(
+          'Assign elevated role PLACA officer to Existing Staff? This will grant administrative access to the platform.'
+        );
+        expect(updateUser).toHaveBeenCalledWith('u-1', { role: 'placa_officer' });
+
+        // Success notification displayed
+        expect(
+          await screen.findByText('Role for Existing Staff was updated to PLACA officer.')
+        ).toBeInTheDocument();
+
+        // Form closes and user list refreshes
+        await waitFor(() => {
+          expect(screen.queryByLabelText(/^new role/i)).not.toBeInTheDocument();
+        });
+        expect(listUsers).toHaveBeenCalledTimes(2);
+
+        confirmSpy.mockRestore();
+      });
+
+      it('uses standard confirmation message when assigning non-elevated role', async () => {
+        const user = userEvent.setup();
+        const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+        listUsers.mockResolvedValue({
+          data: [
+            {
+              id: 'u-officer',
+              name: 'Sam Officer',
+              email: 'sam@placa.gov.ng',
+              role: 'placa_officer',
+              is_active: true,
+            },
+          ],
+          pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+        });
+
+        updateUser.mockResolvedValue({
+          user: { id: 'u-officer', name: 'Sam Officer', role: 'partner_staff' },
+        });
+
+        renderUsersPage({ role: 'admin', userId: 'admin-actor' });
+        const changeRoleBtn = await screen.findByRole('button', { name: /change role/i });
+        await user.click(changeRoleBtn);
+
+        const select = screen.getByLabelText(/^new role/i);
+        await user.selectOptions(select, 'partner_staff');
+
+        await user.click(screen.getByRole('button', { name: /save role/i }));
+
+        expect(confirmSpy).toHaveBeenCalledWith(
+          "Change Sam Officer's role from PLACA officer to Partner staff?"
+        );
+        expect(updateUser).toHaveBeenCalledWith('u-officer', { role: 'partner_staff' });
+
+        confirmSpy.mockRestore();
+        listUsers.mockResolvedValue({
+          data: mockUsersList,
+          pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+        });
+      });
+
+      it('does not call updateUser if confirmation is cancelled', async () => {
+        const user = userEvent.setup();
+        const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+        renderUsersPage({ role: 'placa_director' });
+        const changeRoleBtn = await screen.findByRole('button', { name: /change role/i });
+        await user.click(changeRoleBtn);
+
+        const select = screen.getByLabelText(/^new role/i);
+        await user.selectOptions(select, 'placa_officer');
+
+        await user.click(screen.getByRole('button', { name: /save role/i }));
+
+        expect(confirmSpy).toHaveBeenCalled();
+        expect(updateUser).not.toHaveBeenCalled();
+
+        confirmSpy.mockRestore();
+      });
+    });
+
+    describe('Failed role updates', () => {
+      it('displays error if user tries to save without changing the role', async () => {
+        const user = userEvent.setup();
+        renderUsersPage({ role: 'placa_director' });
+        const changeRoleBtn = await screen.findByRole('button', { name: /change role/i });
+        await user.click(changeRoleBtn);
+
+        // Current role is partner_staff; select same role
+        const select = screen.getByLabelText(/^new role/i);
+        await user.selectOptions(select, 'partner_staff');
+
+        await user.click(screen.getByRole('button', { name: /save role/i }));
+
+        expect(
+          await screen.findByText('Select a different role to change.')
+        ).toBeInTheDocument();
+        expect(updateUser).not.toHaveBeenCalled();
+      });
+
+      it('displays server error message when update API call fails', async () => {
+        const user = userEvent.setup();
+        const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+        updateUser.mockRejectedValueOnce({
+          response: {
+            status: 403,
+            data: {
+              error: 'ROLE_CHANGE_NOT_ALLOWED',
+              message: 'Only a director or admin can change a role.',
+            },
+          },
+        });
+
+        renderUsersPage({ role: 'placa_director' });
+        const changeRoleBtn = await screen.findByRole('button', { name: /change role/i });
+        await user.click(changeRoleBtn);
+
+        const select = screen.getByLabelText(/^new role/i);
+        await user.selectOptions(select, 'placa_officer');
+
+        await user.click(screen.getByRole('button', { name: /save role/i }));
+
+        expect(
+          await screen.findByText(
+            "Only a PLACA director or system admin can change a user's role."
+          )
+        ).toBeInTheDocument();
+
+        confirmSpy.mockRestore();
+      });
     });
   });
 });

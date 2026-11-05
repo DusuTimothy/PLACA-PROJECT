@@ -14,6 +14,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import DashboardPage from './pages/DashboardPage';
+import AssistantPage from './pages/AssistantPage';
 import OrganizationsPage from './pages/OrganizationsPage';
 import WorkplansPage from './pages/WorkplansPage';
 import WorkplanPage from './pages/WorkplanPage';
@@ -68,6 +69,15 @@ export default function App() {
         element={
           <ProtectedRoute>
             <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/assistant"
+        element={
+          <ProtectedRoute>
+            <AssistantPage />
           </ProtectedRoute>
         }
       />

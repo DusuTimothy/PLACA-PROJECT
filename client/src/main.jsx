@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
+import AssistantWidget from './components/assistant/AssistantWidget';
 import { AuthProvider } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import './i18n';
@@ -13,6 +14,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <AuthProvider>
         <LanguageProvider>
           <App />
+          <AssistantWidget />
         </LanguageProvider>
       </AuthProvider>
     </BrowserRouter>

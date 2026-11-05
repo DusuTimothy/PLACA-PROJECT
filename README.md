@@ -56,7 +56,7 @@ review.** They add:
 - A production preflight command that checks secrets, migrations, audit
   triggers, demo-data leftovers and small-cell suppression
 
-The current API checks (152) and client unit tests (18) pass against the build;
+The current API checks and client/server unit tests pass against the build;
 see [Testing](#testing) for the commands.
 
 **Phase 5 — Offline work, resources and coordination modules are implemented
@@ -125,6 +125,59 @@ Workflow:
 - Phase 2 report screens accept **totals only** for speed and reliability. The
   guided sex-and-age paper-style forms arrive in Phase 3.
 - Every create, update, submit and review writes to the append-only audit log.
+
+## AI assistant (Gemini)
+
+A general assistant is available in two forms: a floating chat widget on every
+screen (including the public landing page), and the full page at
+`/app/assistant`. It answers general questions in English and Hausa, keeps each
+signed-in user's conversations so they can continue later, and supports browser
+voice input plus read-aloud answers on the full page.
+
+Visitors who are not signed in can use the same floating widget through a
+stateless public endpoint. That chat is not saved, cannot read any PLACA record,
+and has a smaller per-IP rate limit. Signing in switches the widget to the saved
+account conversation.
+
+Setup:
+
+1. Create a key in [Google AI Studio](https://aistudio.google.com/app/apikey).
+2. Add it to `.env` on the server. The key is never bundled into the client:
+
+   ```bash
+   GEMINI_API_KEY=your-server-side-key
+   # Optional overrides:
+   GEMINI_MODEL=gemini-2.5-flash
+   GEMINI_TIMEOUT_MS=30000
+   ```
+
+3. Apply the migration and restart the API:
+
+   ```bash
+   cd server
+   npm run migrate
+   ```
+
+The assistant is optional. Without a key, the rest of the platform works and
+the assistant widget/page shows a clear `AI_NOT_CONFIGURED` setup message. The
+production preflight warns when the key is missing.
+
+Privacy and safety:
+
+- Signed-in chat sends only the user's own conversation text and a fixed public
+  system instruction to Gemini. Name, email, role, organization, LGA, tokens and
+  all programme records stay in PLACA.
+- Public chat is stateless. The browser may send at most six recent turns; the
+  server sanitizes them, stores nothing and cannot read private records.
+- The server rebuilds signed-in history from `chat_messages`; the browser cannot
+  submit fake previous turns.
+- The widget clears the previous person's chat when a different user signs in.
+- Conversations are private to their owner and excluded from the audit log.
+- Answers are labelled as AI-generated and are not guaranteed, official or
+  medical advice. Users are told not to enter personal information.
+
+See [docs/AI_ASSISTANT.md](docs/AI_ASSISTANT.md) for the endpoint map, error
+codes, rate limit, privacy boundary and voice-browser behaviour.
 
 ## Production on a fresh database
 
@@ -300,10 +353,23 @@ cd client
 npm test
 ```
 
-3 files, 18 tests. They cover the sign-in form (validation, the TOTP step,
-error display), the `/app` route table (login screen, guards, redirects) and the
-guided count helpers (paper-order cells, preserved composite values, inline
-consistency messages).
+The suite covers the sign-in form (validation, the TOTP step, error display),
+the `/app` route table (login screen, guards, redirects), the guided count
+helpers (paper-order cells, preserved composite values, inline consistency
+messages), the user role-change controls, and the AI assistant page
+(conversation continuation, sending/loading, failure state and safety notice).
+
+**Server unit tests** (Jest):
+
+```bash
+cd server
+npm test
+```
+
+These cover the assistant's Zod validation, the exact Gemini payload (only
+conversation text, key in a server header), owner-scoped history, the
+missing-key/setup error, provider failures and blocked responses. They are
+focused tests with mocked HTTP; no Gemini key is needed.
 
 **API checks** (needs a running server and a demo database):
 
@@ -347,9 +413,9 @@ the current demo records.
 
 **Not covered yet:**
 
-- The server has no committed unit or integration suite. Jest is configured,
-  but `npm test` currently exits with "No tests found"; the API script above is
-  the server-side check.
+- The server unit suite is focused on the assistant; broader service
+  integration tests are still on the hardening plan, and the API script above is
+  the end-to-end check.
 - No browser automation is committed. Layout, language and print checks were
   run manually during Phases 2 to 5.
 

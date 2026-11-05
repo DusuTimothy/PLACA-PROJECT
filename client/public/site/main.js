@@ -24,7 +24,41 @@
       'Published figures are temporarily unavailable. Please try again later.',
     'results.generated': 'Last updated: {{date}}',
     'results.showing': 'Showing {{count}} rows.',
-    'results.state': 'State'
+    'results.state': 'State',
+
+    'assistant.launcher': 'Ask PLACA',
+    'assistant.widgetOpen': 'Open PLACA assistant',
+    'assistant.widgetClose': 'Close assistant',
+    'assistant.widgetTitle': 'PLACA assistant',
+    'assistant.widgetDisclaimer':
+      'AI can make mistakes. Answers are not official or medical advice. Do not share personal information.',
+    'assistant.widgetPublicNote':
+      'You are not signed in. This chat is not saved and will clear when you leave or refresh. Sign in to keep your conversation.',
+    'assistant.widgetGuestBadge': 'Not saved',
+    'assistant.widgetNewChat': 'New chat',
+    'assistant.empty':
+      'Start with a question. You can continue the same chat with follow-up questions.',
+    'assistant.placeholder': 'Ask a general question…',
+    'assistant.send': 'Send',
+    'assistant.sending': 'Sending…',
+    'assistant.thinking': 'Assistant is thinking…',
+    'assistant.you': 'You',
+    'assistant.assistantName': 'PLACA assistant',
+    'assistant.widgetRetry': 'Try again',
+    'assistant.widgetInputLabel': 'Message the assistant',
+    'assistant.widgetSignIn': 'Sign in to save chats',
+    'assistant.charactersLeft': '{{count}} characters left',
+    'assistant.generatedNotice': 'AI-generated. Check important details before acting on them.',
+    'assistant.errorNotConfigured':
+      'The assistant is not set up yet. Ask a PLACA administrator to add the Gemini API key.',
+    'assistant.errorUnavailable':
+      'The assistant is unavailable right now. Please try again in a moment.',
+    'assistant.errorTimeout': 'The assistant took too long to answer. Please try again.',
+    'assistant.errorBlocked':
+      'The assistant could not answer that request. Try asking in a different way.',
+    'assistant.errorRateLimited': 'Too many messages. Please wait a few minutes and try again.',
+    'assistant.errorValidation': 'Please type a question of 1000 characters or fewer.',
+    'assistant.errorGeneric': 'The assistant could not answer. Please try again.'
   };
   Object.keys(enDynamic).forEach(function (key) {
     en[key] = enDynamic[key];
@@ -194,7 +228,45 @@
     'footer.counts':
       'Lambobi kawai. Babu sunayen masu amfana, adireshi ko sakamakon gwajin HIV.',
     'footer.reported':
-      'Lambobin da aka wallafa ayyuka ne da aka bayar da rahoto, ba tabbatacciyar gaskiya ba.'
+      'Lambobin da aka wallafa ayyuka ne da aka bayar da rahoto, ba tabbatacciyar gaskiya ba.',
+
+    'assistant.launcher': 'Tambayi PLACA',
+    'assistant.widgetOpen': 'Buɗe mataimakin PLACA',
+    'assistant.widgetClose': 'Rufe mataimaki',
+    'assistant.widgetTitle': 'Mataimakin PLACA',
+    'assistant.widgetDisclaimer':
+      'AI na iya yin kuskure. Amsoshi ba na hukuma ba ne kuma ba shawara ta likita ba. Kada ka raba bayanan sirri.',
+    'assistant.widgetPublicNote':
+      'Ba ka shiga ba. Ba a adana wannan tattaunawa ba kuma za ta ɓace idan ka bar shafin ko ka sabunta shi. Shiga domin adana tattaunawarka.',
+    'assistant.widgetGuestBadge': 'Ba a adana ba',
+    'assistant.widgetNewChat': 'Sabuwar tattaunawa',
+    'assistant.empty':
+      'Fara da tambaya. Za ka iya ci gaba da wannan tattaunawa da ƙarin tambayoyi.',
+    'assistant.placeholder': 'Yi tambaya ta gama-gari…',
+    'assistant.send': 'Aika',
+    'assistant.sending': 'Ana aikawa…',
+    'assistant.thinking': 'Mataimakin yana tunani…',
+    'assistant.you': 'Kai',
+    'assistant.assistantName': 'Mataimakin PLACA',
+    'assistant.widgetRetry': 'Sake gwadawa',
+    'assistant.widgetInputLabel': 'Aika saƙo ga mataimaki',
+    'assistant.widgetSignIn': 'Shiga don adana tattaunawa',
+    'assistant.charactersLeft': 'Sauran haruffa {{count}}',
+    'assistant.generatedNotice':
+      'AI ce ta samar. Tabbatar da muhimman bayanai kafin yin aiki da su.',
+    'assistant.errorNotConfigured':
+      'Ba a saita mataimakin ba tukuna. Ka ce wa mai gudanarwa na PLACA ya ƙara mabuɗin Gemini API.',
+    'assistant.errorUnavailable':
+      'Mataimakin ba ya samuwa a yanzu. Don Allah sake gwadawa nan ba da jimawa ba.',
+    'assistant.errorTimeout':
+      'Mataimakin ya ɗauki lokaci mai tsawo wajen amsawa. Don Allah sake gwadawa.',
+    'assistant.errorBlocked':
+      'Mataimakin bai iya amsa wannan buƙatar ba. Gwada yin tambaya ta wata hanya.',
+    'assistant.errorRateLimited':
+      'Saƙonni da yawa. Don Allah jira mintuna kaɗan ka sake gwadawa.',
+    'assistant.errorValidation':
+      'Don Allah rubuta tambaya da ba ta wuce haruffa 1000 ba.',
+    'assistant.errorGeneric': 'Mataimakin bai iya amsawa ba. Don Allah sake gwadawa.'
   };
 
   var currentLanguage = 'en';
@@ -207,6 +279,15 @@
       return variables[name] === undefined ? '' : String(variables[name]);
     });
   }
+
+  // The floating assistant lives in a separate small script so the landing
+  // page keeps its framework-free structure. It reuses this translator.
+  window.PLACA_PUBLIC = {
+    t: t,
+    getLanguage: function () {
+      return currentLanguage;
+    }
+  };
 
   function formatNumber(value) {
     try {
@@ -265,6 +346,16 @@
       window.localStorage.setItem('placa_language', currentLanguage);
     } catch (_error) {
       /* Storage can be blocked; the page still works. */
+    }
+
+    try {
+      window.dispatchEvent(
+        new CustomEvent('placa:language-changed', {
+          detail: { language: currentLanguage }
+        })
+      );
+    } catch (_error) {
+      /* CustomEvent is unavailable only in very old browsers. */
     }
 
     if (state.data) {

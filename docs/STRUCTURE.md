@@ -12,8 +12,8 @@ PLACA_PROJECT/
 │   │   ├── components/         # Layout, protected routes, UI primitives
 │   │   ├── context/            # Auth and language state
 │   │   ├── locales/            # en.json and ha.json
-│   │   ├── pages/              # Auth, dashboard, programme, resource and coordination pages
-│   │   ├── services/           # API client, offline cache/outbox, Phase 5 endpoints
+│   │   ├── pages/              # Auth, dashboard, programme, resource, coordination and assistant pages
+│   │   ├── services/           # API client, offline cache/outbox, Phase 5 endpoints, assistant endpoints
 │   │   └── utils/              # Error, field-message, role and period helpers
 │   └── vitest.config.js        # jsdom component smoke tests
 ├── server/
@@ -113,6 +113,10 @@ PLACA_PROJECT/
 | `GET` | `/api/notifications/unread` | Signed in; own count |
 | `POST` | `/api/notifications/:id/read` | Signed in; own notification |
 | `POST` | `/api/notifications/read-all` | Signed in; own notifications |
+| `GET` | `/api/assistant/conversations` | Signed in; own conversations |
+| `GET/DELETE` | `/api/assistant/conversations/:id` | Signed in; own conversation |
+| `POST` | `/api/assistant/chat` | Signed in, per-account limit; sends one message to Gemini |
+| `POST` | `/api/public/assistant/chat` | No session; stateless public widget chat, strict per-IP limit |
 
 `/api/organizations`, `/api/workplans` and `/api/reports` are closed to `admin`
 by design: the admin role manages accounts and the audit log, never programme
@@ -159,8 +163,14 @@ data.
   readable by every signed-in account, but `/api/organizations`,
   `/api/workplans`, `/api/reports`, `/api/support-requests`, `/api/equipment`,
   `/api/funding` and `/api/programmes` stay closed to `admin`.
+- The AI assistant is available to every signed-in account, including admin,
+  because it receives only the user's own conversation text and a fixed public
+  system instruction. Conversations are owner-scoped and excluded from the audit
+  log. See [AI_ASSISTANT.md](AI_ASSISTANT.md).
 - `20260101000400-phase-5-offline-and-resources.js` adds
   `support_requests.client_uuid`, the Phase 5 tables and their indexes.
+- `20260101000500-create-assistant-chat.js` adds `chat_conversations` and
+  `chat_messages` for the Gemini assistant.
 
 ## Public site and app paths
 
@@ -224,7 +234,9 @@ data.
 
 ## Checks
 
-- Client unit tests: `cd client && npm test` (Vitest, 18 tests).
+- Client unit tests: `cd client && npm test` (Vitest; includes the assistant page).
+- Server unit tests: `cd server && npm test` (Jest; assistant validation, privacy
+  boundary and provider error handling).
 - End-to-end API checks: `cd server && npm run verify:api`. This runs
   `scripts/verify-api.mjs` against a live server, prints `ok`/`FAIL` per check
   (152 today) and exits non-zero on failure. It needs a demo database whose
@@ -234,8 +246,8 @@ data.
   HTTPS/CORS settings, the database, required tables, migrations, audit
   triggers, demo-data leftovers, the public small-cell rule and pending
   aggregation.
-- Neither test layer runs in CI yet. The server has no unit/integration suite;
-  Jest is configured but empty.
+- Neither test layer runs in CI yet. The server unit suite is currently focused
+  on the AI assistant; broader service integration tests remain.
 
 ## Quick debugging
 

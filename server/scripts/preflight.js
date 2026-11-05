@@ -94,6 +94,12 @@ async function main() {
     warn('Email delivery is not configured', 'invitations and alerts will need another channel');
   }
 
+  if (env.GEMINI_API_KEY) {
+    pass('AI assistant is configured');
+  } else {
+    warn('AI assistant is not configured', 'set GEMINI_API_KEY to enable the assistant');
+  }
+
   try {
     await sequelize.authenticate();
     pass('Database connection works');
@@ -127,6 +133,8 @@ async function main() {
     'funding_allocations',
     'welfare_programmes',
     'notifications',
+    'chat_conversations',
+    'chat_messages',
   ];
   for (const table of requiredTables) {
     const exists = await scalar('SELECT to_regclass(:table) IS NOT NULL AS present', {
@@ -139,7 +147,7 @@ async function main() {
   const migrations = await scalar('SELECT COUNT(*)::int FROM "SequelizeMeta"').catch(() => null);
   if (migrations === null) {
     fail('Migration history table "SequelizeMeta" is missing');
-  } else if (migrations >= 5) {
+  } else if (migrations >= 6) {
     pass(`Migration history has ${migrations} entries`);
   } else {
     warn(`Only ${migrations} migrations recorded`, 'check that every migration ran');

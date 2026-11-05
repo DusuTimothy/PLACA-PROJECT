@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AppShell from '../components/layout/AppShell';
@@ -9,9 +9,16 @@ import Select from '../components/ui/Select';
 import StatusBadge from '../components/ui/StatusBadge';
 import { useAuth } from '../context/AuthContext';
 import { listOrganizations } from '../services/programmeApi';
-import { createUser, listUsers, resendInvitation } from '../services/userApi';
+import { createUser, listUsers, resendInvitation, updateUser } from '../services/userApi';
 import { errorMessage, getFieldErrors } from '../utils/errors';
-import { canCreatePartnerStaff, formatDate } from '../utils/roles';
+import {
+  canChangeRoles,
+  canCreatePartnerStaff,
+  canManageTargetUserRole,
+  formatDate,
+  getAllowedRolesToAssign,
+  isElevatedRole,
+} from '../utils/roles';
 
 const emptyForm = {
   name: '',
@@ -24,6 +31,14 @@ export default function UsersPage() {
   const { t, i18n } = useTranslation();
   const [searchParams] = useSearchParams();
   const canCreate = canCreatePartnerStaff(user?.role);
+
+  // The user list does not depend on the interface language. Keeping the
+  // latest translator in a ref stops a language switch from refetching data and
+  // briefly replacing the list with a loading message.
+  const tRef = useRef(t);
+  useEffect(() => {
+    tRef.current = t;
+  }, [t]);
 
   const initialOrgId = searchParams.get('organization_id') || searchParams.get('org_id') || '';
 
@@ -42,6 +57,12 @@ export default function UsersPage() {
   const [form, setForm] = useState({ ...emptyForm, organization_id: initialOrgId });
   const [fieldErrors, setFieldErrors] = useState({});
   const [saving, setSaving] = useState(false);
+
+  const [editingUserId, setEditingUserId] = useState(null);
+  const [selectedRole, setSelectedRole] = useState('');
+  const [savingRoleId, setSavingRoleId] = useState(null);
+
+  const allowedRoles = getAllowedRolesToAssign(user?.role);
 
   // Load approved organizations for the partner staff form dropdown.
   // Only approved organizations may be linked to partner staff.
@@ -94,11 +115,11 @@ export default function UsersPage() {
       });
       setResult(data);
     } catch (loadError) {
-      setError(errorMessage(loadError, t));
+      setError(errorMessage(loadError, tRef.current));
     } finally {
       setLoading(false);
     }
-  }, [page, filters.search, filters.role, t]);
+  }, [page, filters.search, filters.role]);
 
   useEffect(() => {
     load();
@@ -106,6 +127,8 @@ export default function UsersPage() {
 
   function updateFilter(key, value) {
     setPage(1);
+    setEditingUserId(null);
+    setSelectedRole('');
     setFilters((current) => ({ ...current, [key]: value }));
   }
 
@@ -250,6 +273,82 @@ export default function UsersPage() {
     }
   }
 
+  function openRoleChange(targetUser) {
+    setError('');
+    setNotice(null);
+    setWarning('');
+    if (editingUserId === targetUser.id) {
+      setEditingUserId(null);
+      setSelectedRole('');
+    } else {
+      setEditingUserId(targetUser.id);
+      setSelectedRole(targetUser.role || '');
+    }
+  }
+
+  async function handleSaveRole(targetUser) {
+    if (!canManageTargetUserRole(user, targetUser)) {
+      if (targetUser.id === user?.id) {
+        setError(t('users.cannotChangeSelf'));
+      } else {
+        setError(t('errors.ROLE_CHANGE_NOT_ALLOWED'));
+      }
+      return;
+    }
+
+    if (!selectedRole || selectedRole === targetUser.role) {
+      setError(t('users.roleUnchanged'));
+      return;
+    }
+
+    if (user?.role !== 'admin' && selectedRole === 'admin') {
+      setError(t('errors.ROLE_NOT_ALLOWED'));
+      return;
+    }
+
+    const isElevated = isElevatedRole(selectedRole);
+    const newRoleLabel = t(`roles.${selectedRole}`, { defaultValue: selectedRole });
+    const oldRoleLabel = t(`roles.${targetUser.role}`, { defaultValue: targetUser.role });
+
+    const confirmMessage = isElevated
+      ? t('users.confirmRoleChangeElevated', {
+          name: targetUser.name,
+          newRole: newRoleLabel,
+        })
+      : t('users.confirmRoleChange', {
+          name: targetUser.name,
+          oldRole: oldRoleLabel,
+          newRole: newRoleLabel,
+        });
+
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    setSavingRoleId(targetUser.id);
+    setError('');
+    setNotice(null);
+    setWarning('');
+
+    try {
+      await updateUser(targetUser.id, { role: selectedRole });
+      setNotice({
+        variant: 'success',
+        text: t('users.roleChangedSuccess', {
+          name: targetUser.name,
+          role: newRoleLabel,
+        }),
+      });
+      setEditingUserId(null);
+      setSelectedRole('');
+      await load();
+    } catch (updateError) {
+      setError(errorMessage(updateError, t));
+    } finally {
+      setSavingRoleId(null);
+    }
+  }
+
   const pagination = result.pagination;
 
   return (
@@ -370,7 +469,14 @@ export default function UsersPage() {
               <li key={u.id} className="placa-card">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <h2 className="text-lg font-bold text-ink">{u.name}</h2>
+                    <h2 className="text-lg font-bold text-ink">
+                      {u.name}
+                      {user?.id === u.id && (
+                        <span className="ml-2 text-xs font-normal text-slate-500">
+                          {t('users.selfAccount')}
+                        </span>
+                      )}
+                    </h2>
                     <p className="mt-1 text-sm text-slate-600">
                       {t(`roles.${u.role}`, { defaultValue: u.role })}
                       {u.organization?.name ? ` · ${u.organization.name}` : ''}
@@ -388,6 +494,15 @@ export default function UsersPage() {
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <StatusBadge status={u.is_active ? 'active' : 'suspended'} />
+                    {canManageTargetUserRole(user, u) && (
+                      <Button
+                        variant="secondary"
+                        onClick={() => openRoleChange(u)}
+                        aria-label={`${t('users.changeRole')} - ${u.name}`}
+                      >
+                        {t('users.changeRole')}
+                      </Button>
+                    )}
                     {canCreate && u.role === 'partner_staff' && u.email && (
                       <Button
                         variant="secondary"
@@ -399,6 +514,69 @@ export default function UsersPage() {
                     )}
                   </div>
                 </div>
+
+                {canManageTargetUserRole(user, u) && editingUserId === u.id && (
+                  <form
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      handleSaveRole(u);
+                    }}
+                    className="mt-4 space-y-3 border-t border-slate-200 pt-4"
+                  >
+                    <div>
+                      <h3 className="text-sm font-semibold text-ink">
+                        {t('users.changeRoleTitle', { name: u.name })}
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        {t('users.currentRole', {
+                          role: t(`roles.${u.role}`, { defaultValue: u.role }),
+                        })}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-end gap-3">
+                      <Select
+                        id={`user-role-${u.id}`}
+                        label={t('users.newRole')}
+                        value={selectedRole}
+                        onChange={(event) => setSelectedRole(event.target.value)}
+                        className="w-full sm:w-64"
+                      >
+                        <option value="">{t('users.selectRole')}</option>
+                        {allowedRoles.map((roleKey) => (
+                          <option key={roleKey} value={roleKey}>
+                            {t(`roles.${roleKey}`)}
+                          </option>
+                        ))}
+                      </Select>
+                      <div className="flex gap-2">
+                        <Button
+                          type="submit"
+                          loading={savingRoleId === u.id}
+                        >
+                          {t('users.saveRole')}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => {
+                            setEditingUserId(null);
+                            setSelectedRole('');
+                          }}
+                        >
+                          {t('common.cancel')}
+                        </Button>
+                      </div>
+                    </div>
+                    {selectedRole && isElevatedRole(selectedRole) && (
+                      <p
+                        role="alert"
+                        className="rounded border border-amber-200 bg-amber-50 p-2 text-xs text-amber-800"
+                      >
+                        {t('users.elevatedRoleWarning')}
+                      </p>
+                    )}
+                  </form>
+                )}
               </li>
             ))}
           </ul>

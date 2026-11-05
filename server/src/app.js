@@ -79,6 +79,7 @@ app.get('/health', async (req, res) => {
 app.use('/api', globalLimiter);
 
 const publicRoutes = require('./routes/public');
+const publicAssistantRoutes = require('./routes/publicAssistant');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const referenceRoutes = require('./routes/reference');
@@ -95,8 +96,11 @@ const supportRequestRoutes = require('./routes/supportRequests');
 const fundingRoutes = require('./routes/funding');
 const programmeRoutes = require('./routes/programmes');
 const notificationRoutes = require('./routes/notifications');
+const assistantRoutes = require('./routes/assistant');
 
-// No session: the landing page reads pre-aggregated counts only.
+// No session: the landing page reads pre-aggregated counts only, and its chat
+// is stateless with its own strict per-IP limit.
+app.use('/api/public/assistant', publicAssistantRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -113,6 +117,7 @@ app.use('/api/support-requests', supportRequestRoutes);
 app.use('/api/funding', fundingRoutes);
 app.use('/api/programmes', programmeRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/assistant', assistantRoutes);
 // The reference router declares full paths so both can share one file.
 app.use('/api', referenceRoutes);
 

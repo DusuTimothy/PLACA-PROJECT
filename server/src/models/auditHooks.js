@@ -12,6 +12,8 @@
  * - RefreshToken: contains security tokens; token rotation is operational noise.
  * - UserGuideProgress: learning progress, not programme/business data.
  * - Notification: read receipts and in-app notices are operational noise.
+ * - ChatConversation/ChatMessage: private assistant conversations must not be
+ *   copied into the audit log.
  */
 
 const { getContext } = require('../utils/requestContext');
@@ -22,6 +24,8 @@ const EXCLUDED_MODELS = new Set([
   'RefreshToken',
   'UserGuideProgress',
   'Notification',
+  'ChatConversation',
+  'ChatMessage',
 ]);
 
 function cloneValue(value) {

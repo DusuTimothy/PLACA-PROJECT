@@ -44,4 +44,32 @@ const loginLimiter = rateLimit({
   handler: jsonLimiterHandler,
 });
 
-module.exports = { globalLimiter, authLimiter, loginLimiter };
+// A Gemini call is much more expensive than an ordinary read. The key is the
+// account id, so a shared office IP cannot exhaust the allowance for everyone.
+const assistantLimiter = rateLimit({
+  windowMs: env.AI_RATE_LIMIT_WINDOW_MS,
+  limit: env.AI_RATE_LIMIT_MAX,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => (req.user ? `user:${req.user.id}` : `ip:${req.ip}`),
+  handler: jsonLimiterHandler,
+});
+
+// Anonymous landing-page visitors have no account to key on. Keep the public
+// allowance deliberately small and make it independent of the signed-in limit.
+const publicAssistantLimiter = rateLimit({
+  windowMs: env.PUBLIC_AI_RATE_LIMIT_WINDOW_MS,
+  limit: env.PUBLIC_AI_RATE_LIMIT_MAX,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => `public:${req.ip}`,
+  handler: jsonLimiterHandler,
+});
+
+module.exports = {
+  globalLimiter,
+  authLimiter,
+  loginLimiter,
+  assistantLimiter,
+  publicAssistantLimiter,
+};

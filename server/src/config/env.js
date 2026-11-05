@@ -50,6 +50,30 @@ const envSchema = z.object({
   EMAIL_FROM: z.string().default('noreply@placa.org.ng'),
   EMAIL_FROM_NAME: z.string().default('PLACA Platform'),
 
+  // Gemini powers the general-purpose assistant. The key is server-only and is
+  // never sent to the browser. The feature reports a clear setup error when it
+  // is absent; the rest of the platform keeps working.
+  GEMINI_API_KEY: z.string().trim().optional(),
+  GEMINI_MODEL: z.string().trim().default('gemini-2.5-flash'),
+  GEMINI_API_BASE_URL: z
+    .string()
+    .url()
+    .default('https://generativelanguage.googleapis.com/v1beta'),
+  GEMINI_TIMEOUT_MS: z.coerce.number().int().positive().max(120000).default(30000),
+  // Prior turns sent as context. The full conversation stays in PostgreSQL.
+  AI_MAX_HISTORY_MESSAGES: z.coerce.number().int().min(2).max(50).default(12),
+  // Per-account assistant limit, separate from the global IP limit.
+  AI_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(15 * 60 * 1000),
+  AI_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(30),
+  // Anonymous landing-page chat is more exposed than an authenticated account,
+  // so it has a smaller allowance per IP address.
+  PUBLIC_AI_RATE_LIMIT_WINDOW_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(10 * 60 * 1000),
+  PUBLIC_AI_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(8),
+
   STORAGE_TYPE: z.enum(['local', 's3']).default('local'),
   UPLOAD_DIR: z.string().default(path.resolve(__dirname, '../../uploads')),
 

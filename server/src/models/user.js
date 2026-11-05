@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.RefreshToken, { foreignKey: 'user_id', as: 'refreshTokens' });
       User.hasMany(models.Notification, { foreignKey: 'user_id', as: 'notifications' });
       User.hasMany(models.UserGuideProgress, { foreignKey: 'user_id', as: 'guideProgress' });
+      User.hasMany(models.ChatConversation, { foreignKey: 'user_id', as: 'chatConversations' });
       User.hasMany(models.AuditLog, { foreignKey: 'user_id', as: 'auditLogs' });
       User.hasMany(models.Organization, { foreignKey: 'approved_by', as: 'approvedOrganizations' });
       User.hasMany(models.Report, { foreignKey: 'submitted_by', as: 'submittedReports' });
