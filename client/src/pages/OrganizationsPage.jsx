@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AppShell from '../components/layout/AppShell';
 import Alert from '../components/ui/Alert';
@@ -32,6 +33,7 @@ const emptyForm = {
 export default function OrganizationsPage() {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const canRegister = canManageOrganizations(user?.role);
   const canApprove = isPlaca(user?.role);
 
@@ -308,13 +310,21 @@ export default function OrganizationsPage() {
                       </Button>
                     )}
                     {canApprove && organization.status === 'approved' && (
-                      <Button
-                        variant="danger"
-                        loading={busyId === organization.id}
-                        onClick={() => handleDecision(organization, 'suspend')}
-                      >
-                        {t('organizations.suspend')}
-                      </Button>
+                      <>
+                        <Button
+                          variant="secondary"
+                          onClick={() => navigate(`/users?organization_id=${organization.id}`)}
+                        >
+                          {t('organizations.inviteStaff')}
+                        </Button>
+                        <Button
+                          variant="danger"
+                          loading={busyId === organization.id}
+                          onClick={() => handleDecision(organization, 'suspend')}
+                        >
+                          {t('organizations.suspend')}
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>

@@ -38,6 +38,7 @@ export default function AppShell({ children }) {
       equipment: 'nav.equipment',
       notifications: 'nav.notifications',
       'guide-editor': 'nav.guideEditor',
+      users: 'nav.users',
     };
     document.title = `${t(names[segment] || 'common.appName')} | ${t('common.appName')}`;
   }, [location.pathname, t]);
@@ -63,6 +64,7 @@ export default function AppShell({ children }) {
     { to: '/help', key: 'nav.help' },
     { to: '/documents', key: 'nav.documents' },
     ...(isPlaca(user?.role) ? [{ to: '/guide-editor', key: 'nav.guideEditor' }] : []),
+    ...(isPlaca(user?.role) || isAdmin(user?.role) ? [{ to: '/users', key: 'nav.users' }] : []),
     ...(isAdmin(user?.role) ? [{ to: '/audit-logs', key: 'nav.auditLogs' }] : []),
   ];
 

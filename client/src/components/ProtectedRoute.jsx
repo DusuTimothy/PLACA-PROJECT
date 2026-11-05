@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Spinner from './ui/Spinner';
-import { canViewProgramme, isPlaca } from '../utils/roles';
+import { canViewProgramme, isAdmin, isPlaca } from '../utils/roles';
 
 /**
  * Guards authenticated pages.
@@ -55,6 +55,17 @@ export function AdminRoute({ children }) {
 export function PlacaRoute({ children }) {
   const { user } = useAuth();
   if (user && !isPlaca(user.role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return children;
+}
+
+/**
+ * User management route: PLACA staff (officers and directors) and system admins.
+ */
+export function UserManagementRoute({ children }) {
+  const { user } = useAuth();
+  if (user && !isPlaca(user.role) && !isAdmin(user.role)) {
     return <Navigate to="/dashboard" replace />;
   }
   return children;

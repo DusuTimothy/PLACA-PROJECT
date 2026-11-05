@@ -91,7 +91,7 @@ async function sendEmail(message) {
     try {
       const response = await postToBrevo(payload);
       logger.info(`Email sent: type=${message.type} status=${response.status}`);
-      return { sent: true };
+      return { sent: true, sandboxed: !env.isProduction };
     } catch (error) {
       const status = error.response?.status;
       const retryable = RETRYABLE_STATUS.has(status) || (status && status >= 500);
@@ -101,11 +101,11 @@ async function sendEmail(message) {
       }
       // Log only the type and HTTP status, never the address or body.
       logger.error(`Email failed: type=${message.type} status=${status || 'network_error'}`);
-      return { sent: false, status };
+      return { sent: false, reason: 'send_failed', status };
     }
   }
 
-  return { sent: false };
+  return { sent: false, reason: 'send_failed' };
 }
 
 function textWithLink(intro, url, footer) {

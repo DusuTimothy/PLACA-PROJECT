@@ -41,6 +41,44 @@ export function canAuthor(role) {
   return isPartner(role);
 }
 
+export function canCreatePartnerStaff(role) {
+  return isPlaca(role);
+}
+
+export const ALL_ROLES = [
+  'partner_staff',
+  'laca_officer',
+  'placa_officer',
+  'placa_director',
+  'admin',
+];
+
+export function canChangeRoles(role) {
+  return role === 'placa_director' || role === 'admin';
+}
+
+export function getAllowedRolesToAssign(actorRole) {
+  if (actorRole === 'admin') {
+    return ALL_ROLES;
+  }
+  if (actorRole === 'placa_director') {
+    return ALL_ROLES.filter((r) => r !== 'admin');
+  }
+  return [];
+}
+
+export function isElevatedRole(role) {
+  return ['admin', 'placa_director', 'placa_officer'].includes(role);
+}
+
+export function canManageTargetUserRole(actor, target) {
+  if (!actor || !target) return false;
+  if (!canChangeRoles(actor.role)) return false;
+  if (target.id === actor.id) return false;
+  if (actor.role === 'placa_director' && target.role === 'admin') return false;
+  return true;
+}
+
 const MONTHS_EN = [
   'January',
   'February',

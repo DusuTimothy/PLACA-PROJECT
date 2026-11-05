@@ -4,6 +4,7 @@ import ProtectedRoute, {
   PlacaRoute,
   ProgrammeRoute,
   RedirectIfAuthenticated,
+  UserManagementRoute,
 } from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import TotpSetupPage from './pages/TotpSetupPage';
@@ -27,6 +28,7 @@ import ProgrammesPage from './pages/ProgrammesPage';
 import FundingPage from './pages/FundingPage';
 import EquipmentPage from './pages/EquipmentPage';
 import NotificationsPage from './pages/NotificationsPage';
+import UsersPage from './pages/UsersPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 /**
@@ -165,6 +167,16 @@ export default function App() {
             <PlacaRoute>
               <GuideEditorPage />
             </PlacaRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/users"
+        element={
+          <ProtectedRoute>
+            <UserManagementRoute>
+              <UsersPage />
+            </UserManagementRoute>
           </ProtectedRoute>
         }
       />

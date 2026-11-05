@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import App from '../App';
 import { AuthProvider } from '../context/AuthContext';
 import { LanguageProvider } from '../context/LanguageContext';
-import { refreshSession } from '../services/api';
+import api, { refreshSession } from '../services/api';
 import { listGuideProgress, listGuides, unreadNotifications } from '../services/phase5Api';
 
 vi.mock('../services/api', () => ({
@@ -39,6 +39,7 @@ describe('app routes under /app', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     refreshSession.mockRejectedValue(new Error('no session'));
+    api.get.mockResolvedValue({ data: { data: [], pagination: null } });
     listGuides.mockResolvedValue({ data: [], pagination: null });
     listGuideProgress.mockResolvedValue([]);
     unreadNotifications.mockResolvedValue(0);
@@ -104,5 +105,39 @@ describe('app routes under /app', () => {
     renderAt('/app/guide-editor');
 
     expect(await screen.findByRole('heading', { name: 'Welcome, Partner User' })).toBeInTheDocument();
+  });
+
+  it('sends a partner away from the PLACA-only user management', async () => {
+    refreshSession.mockResolvedValue({
+      accessToken: 'test-token',
+      user: {
+        id: 'partner-1',
+        name: 'Partner User',
+        role: 'partner_staff',
+        must_change_password: false,
+        organization_id: 'org-1',
+        lga_id: 'lga-1',
+      },
+    });
+
+    renderAt('/app/users');
+
+    expect(await screen.findByRole('heading', { name: 'Welcome, Partner User' })).toBeInTheDocument();
+  });
+
+  it('lets a PLACA officer open the user management page', async () => {
+    refreshSession.mockResolvedValue({
+      accessToken: 'test-token',
+      user: {
+        id: 'placa-1',
+        name: 'PLACA Officer',
+        role: 'placa_officer',
+        must_change_password: false,
+      },
+    });
+
+    renderAt('/app/users');
+
+    expect(await screen.findByRole('heading', { name: 'User management' })).toBeInTheDocument();
   });
 });

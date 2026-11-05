@@ -96,7 +96,7 @@ async function resolvePlacement({ role, organization_id: organizationId, lga_id:
 }
 
 async function sendInviteForUser(user, temporaryPassword) {
-  if (!user.email) return { sent: false, url: null };
+  if (!user.email) return { sent: false, url: null, reason: 'no_recipient' };
 
   const { token, hash } = generateOpaqueToken();
   user.invitation_token_hash = hash;
@@ -112,7 +112,18 @@ async function sendInviteForUser(user, temporaryPassword) {
     temporaryPassword,
   });
 
-  return { sent: Boolean(result.sent), url };
+  const sandboxed = Boolean(result.sandboxed || (!env.isProduction && result.sent));
+  const reason =
+    result.reason ||
+    (result.sent ? (sandboxed ? 'sandboxed' : 'delivered') : 'send_failed');
+
+  return {
+    sent: Boolean(result.sent),
+    url,
+    reason,
+    sandboxed,
+    status: result.status || null,
+  };
 }
 
 async function createUser(actor, input) {
@@ -162,6 +173,20 @@ async function createUser(actor, input) {
     temporaryPassword,
     inviteUrl: invite.url,
     emailSent: invite.sent,
+    emailDelivery: {
+      sent: invite.sent,
+      reason:
+        invite.reason ||
+        (invite.sent
+          ? invite.sandboxed
+            ? 'sandboxed'
+            : 'delivered'
+          : populated.email
+          ? 'not_sent'
+          : 'no_email'),
+      sandboxed: Boolean(invite.sandboxed),
+      status: invite.status || null,
+    },
     note: populated.email
       ? 'Give the temporary password or invitation link to the user. They must change it at first sign-in.'
       : 'This account has no email address. Give the temporary password to the user in person.',
@@ -351,6 +376,20 @@ async function resetUserPassword(actor, id) {
     temporaryPassword,
     inviteUrl: invite.url,
     emailSent: invite.sent,
+    emailDelivery: {
+      sent: invite.sent,
+      reason:
+        invite.reason ||
+        (invite.sent
+          ? invite.sandboxed
+            ? 'sandboxed'
+            : 'delivered'
+          : target.email
+          ? 'not_sent'
+          : 'no_email'),
+      sandboxed: Boolean(invite.sandboxed),
+      status: invite.status || null,
+    },
   };
 }
 
@@ -379,6 +418,18 @@ async function resendInvitation(actor, id) {
 
   return {
     emailSent: invite.sent,
+    emailDelivery: {
+      sent: invite.sent,
+      reason:
+        invite.reason ||
+        (invite.sent
+          ? invite.sandboxed
+            ? 'sandboxed'
+            : 'delivered'
+          : 'send_failed'),
+      sandboxed: Boolean(invite.sandboxed),
+      status: invite.status || null,
+    },
     inviteUrl: invite.url,
     expiresInHours: 24,
   };
