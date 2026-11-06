@@ -104,7 +104,11 @@ describe('public landing-page assistant widget', () => {
     expect(document.body.textContent).toContain('You are not signed in');
     expect(document.getElementById('placa-assistant-message')).toHaveFocus();
 
+    const sendButton = document.querySelector('.placa-assistant-send');
+    expect(sendButton).toHaveTextContent('Send');
+    expect(sendButton).toBeDisabled();
     submit('What do you publish?');
+    expect(sendButton).toHaveTextContent('Sending…');
 
     expect(document.body.textContent).toContain('Assistant is thinking…');
 
@@ -125,6 +129,8 @@ describe('public landing-page assistant widget', () => {
     await waitFor(() => {
       expect(document.body.textContent).toContain('Published results are counts only.');
     });
+    expect(sendButton).toHaveTextContent('Send');
+    expect(sendButton).toBeDisabled();
   });
 
   it('shows an explicit setup error and offers a retry', async () => {
@@ -167,5 +173,28 @@ describe('public landing-page assistant widget', () => {
     expect(document.getElementById('placa-assistant-panel').hidden).toBe(true);
     expect(launcher).toHaveAttribute('aria-expanded', 'false');
     expect(launcher).toHaveFocus();
+  });
+
+  it('closes on an outside click without clearing the draft', () => {
+    loadWidget();
+
+    const launcher = document.getElementById('placa-assistant-launcher');
+    launcher.click();
+    const input = document.getElementById('placa-assistant-message');
+    input.value = 'Keep this draft';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+    outside.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+
+    const panel = document.getElementById('placa-assistant-panel');
+    expect(panel.hidden).toBe(true);
+    expect(input.value).toBe('Keep this draft');
+    expect(launcher).toHaveAttribute('aria-expanded', 'false');
+
+    launcher.click();
+    expect(panel.hidden).toBe(false);
+    expect(input.value).toBe('Keep this draft');
   });
 });

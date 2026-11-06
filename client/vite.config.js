@@ -68,7 +68,20 @@ export default defineConfig({
         display: 'standalone',
         start_url: '/app/',
         scope: '/app/',
-        icons: [],
+        icons: [
+          {
+            src: '/site/placa-pwa-icon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'any',
+          },
+          {
+            src: '/site/placa-pwa-icon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'maskable',
+          },
+        ],
       },
       workbox: {
         // The public page is not cached as an app shell; only the signed-in

@@ -157,6 +157,12 @@
     "report-review": "Report review",
     "assistant": "Assistant"
   },
+  "sidebar": {
+    "openMenu": "Open navigation menu",
+    "closeMenu": "Close navigation menu",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar"
+  },
   "status": {
     "draft": "Draft",
     "pending": "Pending",

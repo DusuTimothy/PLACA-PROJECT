@@ -128,9 +128,21 @@ export default function AssistantWidget() {
       }
     }
 
+    function onPointerDown(event) {
+      if (
+        panelRef.current?.contains(event.target) ||
+        launcherRef.current?.contains(event.target)
+      ) {
+        return;
+      }
+      setOpen(false);
+    }
+
     document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('pointerdown', onPointerDown);
     return () => {
       document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('pointerdown', onPointerDown);
     };
   }, [open, close]);
 

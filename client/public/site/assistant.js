@@ -157,7 +157,7 @@
       label: label,
       input: input,
       counter: counter,
-      send: sendMessage,
+      send: send,
       signIn: signIn
     };
 
@@ -260,22 +260,34 @@
     }
   }
 
+  function onPointerDown(event) {
+    if (
+      refs.panel.contains(event.target) ||
+      refs.launcher.contains(event.target)
+    ) {
+      return;
+    }
+    closePanel(false);
+  }
+
   function openPanel() {
     if (state.open) return;
     state.open = true;
     refs.panel.hidden = false;
     refs.launcher.setAttribute('aria-expanded', 'true');
     document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('pointerdown', onPointerDown);
     refs.input.focus();
   }
 
-  function closePanel() {
+  function closePanel(restoreFocus) {
     if (!state.open) return;
     state.open = false;
     refs.panel.hidden = true;
     refs.launcher.setAttribute('aria-expanded', 'false');
     document.removeEventListener('keydown', onKeyDown);
-    refs.launcher.focus();
+    document.removeEventListener('pointerdown', onPointerDown);
+    if (restoreFocus !== false) refs.launcher.focus();
   }
 
   function startNewChat() {

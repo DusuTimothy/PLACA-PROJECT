@@ -71,6 +71,20 @@ describe('AssistantWidget', () => {
     expect(launcher).toHaveFocus();
   });
 
+  it('closes on an outside click without clearing the draft', async () => {
+    const user = userEvent.setup();
+    renderWidget();
+    const launcher = screen.getByRole('button', { name: 'Open PLACA assistant' });
+    await user.click(launcher);
+    await user.type(screen.getByLabelText('Message the assistant'), 'Keep this draft');
+
+    await user.click(document.body);
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await user.click(launcher);
+    expect(screen.getByLabelText('Message the assistant')).toHaveValue('Keep this draft');
+  });
+
   it('sends a public message with bounded local history and shows loading', async () => {
     const pending = deferred();
     sendPublicAssistantMessage.mockReturnValue(pending.promise);

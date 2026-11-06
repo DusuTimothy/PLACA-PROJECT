@@ -157,6 +157,12 @@
     "report-review": "Bitar rahoto",
     "assistant": "Mataimaki"
   },
+  "sidebar": {
+    "openMenu": "Buɗe menu na kewayawa",
+    "closeMenu": "Rufe menu na kewayawa",
+    "collapse": "Rage gefen menu",
+    "expand": "Faɗaɗa gefen menu"
+  },
   "status": {
     "draft": "Daftari",
     "pending": "Ana jira",

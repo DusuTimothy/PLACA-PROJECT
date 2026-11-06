@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import App from '../App';
 import { AuthProvider } from '../context/AuthContext';
@@ -139,5 +140,49 @@ describe('app routes under /app', () => {
     renderAt('/app/users');
 
     expect(await screen.findByRole('heading', { name: 'User management' })).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Main menu' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Organizations' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Users' })).toBeInTheDocument();
+  });
+
+  it('lets desktop users collapse and expand the sidebar', async () => {
+    refreshSession.mockResolvedValue({
+      accessToken: 'test-token',
+      user: {
+        id: 'placa-1',
+        name: 'PLACA Officer',
+        role: 'placa_officer',
+        must_change_password: false,
+      },
+    });
+
+    renderAt('/app/dashboard');
+    await screen.findByRole('heading', { name: 'Welcome, PLACA Officer' });
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Collapse sidebar' }));
+    expect(screen.getByRole('button', { name: 'Expand sidebar' })).toBeInTheDocument();
+  });
+
+  it('opens the mobile navigation drawer with the same role-aware links', async () => {
+    refreshSession.mockResolvedValue({
+      accessToken: 'test-token',
+      user: {
+        id: 'partner-1',
+        name: 'Partner User',
+        role: 'partner_staff',
+        must_change_password: false,
+        organization_id: 'org-1',
+      },
+    });
+
+    renderAt('/app/dashboard');
+    await screen.findByRole('heading', { name: 'Welcome, Partner User' });
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Open navigation menu' }));
+    const drawer = screen.getByRole('dialog', { name: 'Main menu' });
+    expect(within(drawer).getByRole('link', { name: 'Organizations' })).toBeInTheDocument();
+    expect(within(drawer).queryByRole('link', { name: 'Users' })).not.toBeInTheDocument();
   });
 });
