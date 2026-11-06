@@ -783,7 +783,9 @@ a:hover {
 }
 
 .table-wrap {
-  overflow-x: auto;
+  max-height: min(60vh, 32rem);
+  overflow: auto;
+  overscroll-behavior: contain;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 12px;
   background: var(--white);
@@ -815,6 +817,9 @@ td {
 }
 
 thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   background: var(--green-50);
   color: var(--green-800);
   font-size: 0.75rem;

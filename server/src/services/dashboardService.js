@@ -44,7 +44,7 @@ async function pipelineCounts(scope, period) {
   }
 
   const rows = await Report.findAll({
-    attributes: ['status', 'period_type', 'period_year', 'period_number'],
+    attributes: ['status', 'period_type', 'period_year', 'period_number', 'flags'],
     where,
     raw: true,
   });
@@ -53,7 +53,11 @@ async function pipelineCounts(scope, period) {
   for (const row of rows) {
     if (counts[row.status] !== undefined) counts[row.status] += 1;
   }
-  return { counts, total: rows.length };
+  return {
+    counts,
+    total: rows.length,
+    has_synthetic_data: rows.some((row) => row.flags?.synthetic_demo === true),
+  };
 }
 
 function parsePeriod(label) {

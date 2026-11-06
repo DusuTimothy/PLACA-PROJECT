@@ -104,6 +104,12 @@ function Overview({ overview, loading, error, period, setPeriod }) {
 
       {loading && !overview && <p className="text-sm text-slate-600">{t('common.loading')}</p>}
 
+      {overview?.pipeline?.has_synthetic_data && (
+        <Alert variant="warning" title={t('dashboard.demoDataTitle')}>
+          {t('dashboard.demoDataNote')}
+        </Alert>
+      )}
+
       {!loading && overview && !overview.period && (
         <Alert variant="info" title={t('dashboard.noResults')}>
           {t('dashboard.noResultsHint')}

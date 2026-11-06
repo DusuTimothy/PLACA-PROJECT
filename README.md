@@ -331,6 +331,7 @@ cd server
 npm install
 npm run migrate
 npm run seed:demo
+npm run seed:analytics-demo   # synthetic dashboard data for local chart testing
 npm run dev            # http://localhost:5000
 
 # Client (second terminal)
@@ -341,6 +342,13 @@ npm run dev            # http://localhost:5173, proxies /api to :5000
 
 Set `DB_HOST=localhost` (and the published port) in `.env` when the database is
 not running inside Compose.
+
+The analytics demo seeder adds clearly labeled synthetic reports for 2025–2026
+to the local database. The dashboard marks periods that include synthetic data.
+To remove only this dataset and rebuild the affected summaries, run
+`cd server && npm run seed:analytics-demo:undo`. Both commands refuse to run
+unless the environment is development and the database host is a loopback
+address.
 
 ## Testing
 
@@ -482,6 +490,8 @@ cd server
 npm run migrate
 npm run seed            # reference data only (LGAs, indicators, guides)
 npm run seed:demo       # reference data + demo organizations and logins
+npm run seed:analytics-demo      # synthetic quarterly dashboard data (local development only)
+npm run seed:analytics-demo:undo # remove only that synthetic data
 npm run db:reset        # undo all, migrate, reference seed, demo seed
 npm run admin:create -- --email admin@your-domain.org --name "PLACA Administrator"
 

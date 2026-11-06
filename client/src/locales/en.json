@@ -103,6 +103,8 @@
     "resultsIntro": "Published counts from validated reports. Small numbers are withheld at LGA level so no person can be identified.",
     "period": "Period",
     "noResults": "No results published yet",
+    "demoDataTitle": "Synthetic demo data",
+    "demoDataNote": "This period includes clearly labelled synthetic test reports for chart testing. These numbers are not real programme results.",
     "noResultsHint": "Validated reports appear here after a PLACA officer publishes them. Start with Reports to send your counts.",
     "statReports": "Reports for this period",
     "statWaiting": "Waiting for validation",

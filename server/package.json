@@ -12,6 +12,8 @@
     "seed": "sequelize-cli db:seed --seed 20260101000001-seed-lgas.js && sequelize-cli db:seed --seed 20260101000002-seed-indicators.js && sequelize-cli db:seed --seed 20260101000005-seed-guides.js",
     "seed:demo": "sequelize-cli db:seed:all",
     "seed:undo": "sequelize-cli db:seed:undo:all",
+    "seed:analytics-demo": "sequelize-cli db:seed --seed 20261106000001-seed-local-analytics-demo.js",
+    "seed:analytics-demo:undo": "sequelize-cli db:seed:undo --seed 20261106000001-seed-local-analytics-demo.js",
     "db:reset": "sequelize-cli db:seed:undo:all && sequelize-cli db:migrate:undo:all && sequelize-cli db:migrate && npm run seed && npm run seed:demo",
     "admin:create": "node scripts/createAdmin.js",
     "aggregate": "node scripts/aggregate.js",
