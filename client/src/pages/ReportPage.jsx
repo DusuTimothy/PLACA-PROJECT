@@ -735,7 +735,9 @@ function ValuesTable({ values, t }) {
                   {breakdownLabel(item.disaggregation_key, t)}
                 </td>
                 <td className="py-3 text-right text-base font-bold text-ink">
-                  {item.value.toLocaleString()}
+                  {item.value === null || item.value === undefined
+                    ? '0'
+                    : Number(item.value).toLocaleString()}
                 </td>
               </tr>
             ))

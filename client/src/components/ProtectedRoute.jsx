@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import Spinner from './ui/Spinner';
+import LoadingScreen from './ui/LoadingScreen';
 import { canViewProgramme, isAdmin, isPlaca } from '../utils/roles';
 
 /**
@@ -12,9 +13,10 @@ import { canViewProgramme, isAdmin, isPlaca } from '../utils/roles';
  */
 export default function ProtectedRoute({ children, allowPasswordChange = false }) {
   const { user, loading } = useAuth();
+  const { t } = useTranslation();
   const location = useLocation();
 
-  if (loading) return <Spinner />;
+  if (loading) return <LoadingScreen label={t('common.restoringSession')} />;
   if (!user) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
@@ -73,7 +75,8 @@ export function UserManagementRoute({ children }) {
 
 export function RedirectIfAuthenticated({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return <Spinner />;
+  const { t } = useTranslation();
+  if (loading) return <LoadingScreen label={t('common.restoringSession')} />;
   if (user) {
     return (
       <Navigate to={user.must_change_password ? '/change-password' : '/dashboard'} replace />

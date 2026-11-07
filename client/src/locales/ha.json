@@ -3,6 +3,10 @@
     "appName": "Dandalin PLACA",
     "agency": "Hukumar Yaƙi da AIDS ta Jihar Filato",
     "loading": "Ana lodawa…",
+    "loadingHint": "Jira kaɗan. Wannan shafi zai buɗe da zarar sabar ta amsa.",
+    "loadingSlow": "Wannan ya ɗauki lokaci fiye da yadda aka saba. Duba haɗin yanar gizonka; shafin zai ci gaba idan sabar ta amsa.",
+    "restoringSession": "Ana dawo da zamanka…",
+    "reloadPage": "Sake loda shafi",
     "save": "Ajiye",
     "cancel": "Soke",
     "back": "Baya",
@@ -777,6 +781,15 @@
     "roleUnchanged": "Zaɓi wani matsayi na daban don canzawa.",
     "chooseLga": "Zaɓi Ƙaramar Hukuma",
     "selfAccount": "(Kai)"
+  },
+  "crash": {
+    "title": "Ba a iya buɗe wannan shafi ba",
+    "body": "Wani abu ya faru sa'ad da ake nuna wannan shafi. Ayyukanka da aka ajiye suna nan a na'urarka. Sake gwadawa, ko koma shafin farko.",
+    "reload": "Sake gwadawa",
+    "dashboard": "Koma shafin farko",
+    "updateTitle": "Sabon siga yana shirye",
+    "updateBody": "An sabunta manhajar yayin da kake aiki. Sake loda don buɗe sabon sigar. Ayyukanka da aka ajiye ba za su ɓace ba.",
+    "updateAction": "Sake loda manhajar"
   },
   "errors": {
     "ROLE_CHANGE_NOT_ALLOWED": "Darakta ko mai kula da tsarin (admin) na PLACA ne kaɗai ke iya canza matsayin mai amfani.",

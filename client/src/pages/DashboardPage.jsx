@@ -70,7 +70,10 @@ function Overview({ overview, loading, error, period, setPeriod }) {
   }, [overview]);
 
   const counts = overview?.pipeline?.counts || {};
-  const published = counts.validated + counts.aggregated;
+  const published = (counts.validated || 0) + (counts.aggregated || 0);
+  // Cached or partial responses from a slow link may omit `missing`. Treat it
+  // as an empty list instead of crashing the whole dashboard.
+  const missingCoverage = overview?.coverage?.missing || [];
 
   return (
     <section className="space-y-5" aria-labelledby="results-heading">
@@ -184,15 +187,15 @@ function Overview({ overview, loading, error, period, setPeriod }) {
             <div className="placa-card">
               <h3 className="text-base font-bold text-ink">{t('dashboard.coverageTitle')}</h3>
               <p className="mt-1 text-sm text-slate-600">{t('dashboard.coverageIntro')}</p>
-              {overview.coverage.missing.length > 0 ? (
+              {missingCoverage.length > 0 ? (
                 <>
                   <p className="mt-3 text-sm font-semibold text-amber-900">
                     {t('dashboard.coverageMissing', {
-                      count: overview.coverage.missing.length,
+                      count: missingCoverage.length,
                     })}
                   </p>
                   <ul className="mt-2 flex flex-wrap gap-2">
-                    {overview.coverage.missing.map((lga) => (
+                    {missingCoverage.map((lga) => (
                       <li
                         key={lga.id}
                         className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900"

@@ -142,7 +142,7 @@ export default function WorkplansPage() {
                           : ''}
                       </p>
                       <p className="mt-1 text-sm text-slate-600">
-                        {t('workplans.targetsCount', { count: workplan.targets.length })}
+                        {t('workplans.targetsCount', { count: workplan.targets?.length || 0 })}
                         {workplan.updated_at
                           ? ` · ${t('workplans.updated', {
                               date: formatDate(workplan.updated_at, i18n.language),

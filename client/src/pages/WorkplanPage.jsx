@@ -151,12 +151,14 @@ export default function WorkplanPage() {
     setError('');
     try {
       const data = await getWorkplan(id);
-      setWorkplan(data);
+      if (!data) throw new Error('Workplan data is missing');
+      const targets = data.targets || [];
+      setWorkplan({ ...data, targets });
       setYear(String(data.year));
       setQuarter(String(data.quarter));
       setRows(
-        data.targets.length
-          ? data.targets.map((target) =>
+        targets.length
+          ? targets.map((target) =>
               newRow({
                 indicator_id: target.indicator_id,
                 lga_id: target.lga_id,
@@ -404,7 +406,7 @@ export default function WorkplanPage() {
                 <div>
                   <dt className="font-medium text-slate-500">{t('workplans.targetsLabel')}</dt>
                   <dd className="text-base font-semibold text-ink">
-                    {t('workplans.targetsCount', { count: workplan.targets.length })}
+                    {t('workplans.targetsCount', { count: workplan.targets?.length || 0 })}
                   </dd>
                 </div>
               </dl>
@@ -440,7 +442,7 @@ export default function WorkplanPage() {
                       onClick={() => {
                         setEditing(false);
                         setRows(
-                          workplan.targets.map((target) =>
+                          (workplan.targets || []).map((target) =>
                             newRow({
                               indicator_id: target.indicator_id,
                               lga_id: target.lga_id,
@@ -465,7 +467,7 @@ export default function WorkplanPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {workplan.targets.map((target) => (
+                      {(workplan.targets || []).map((target) => (
                         <tr key={target.id} className="border-b border-slate-100 last:border-0">
                           <td className="py-3 pr-3">
                             <span className="font-semibold text-ink">
@@ -477,7 +479,7 @@ export default function WorkplanPage() {
                           </td>
                           <td className="py-3 pr-3 text-slate-700">{target.lga?.name}</td>
                           <td className="py-3 text-right text-base font-bold text-ink">
-                            {target.target_value.toLocaleString()}
+                            {Number(target.target_value || 0).toLocaleString()}
                           </td>
                         </tr>
                       ))}
@@ -492,7 +494,7 @@ export default function WorkplanPage() {
                 <Button
                   onClick={() => runAction('submit')}
                   loading={actionBusy === 'submit'}
-                  disabled={workplan.targets.length === 0}
+                  disabled={(workplan.targets?.length || 0) === 0}
                 >
                   {t('workplans.submit')}
                 </Button>

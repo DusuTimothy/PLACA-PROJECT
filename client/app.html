@@ -14,6 +14,104 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!--
+      Shown only if the app bundle never mounts: a missing or stale JavaScript
+      file would otherwise leave a plain white page. Kept inline and unstyled by
+      Tailwind so it still works when the CSS bundle also failed to load.
+    -->
+    <div
+      id="boot-fallback"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+        background: #f1f5f9;
+        padding: 1.5rem;
+        font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+        color: #17211b;
+      "
+    >
+      <div
+        style="
+          width: 100%;
+          max-width: 24rem;
+          border: 1px solid #e2e8f0;
+          border-radius: 1rem;
+          background: #fff;
+          padding: 1.5rem;
+          box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+        "
+      >
+        <div
+          style="
+            width: 2.75rem;
+            height: 2.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            background: #0f6b3f;
+            color: #fff;
+            font-size: 1.125rem;
+            font-weight: 900;
+          "
+        >
+          P
+        </div>
+        <h1 style="margin: 1rem 0 0; font-size: 1.25rem; line-height: 1.4">
+          This page could not load
+        </h1>
+        <p style="margin: 0.5rem 0 0; font-size: 1rem; line-height: 1.6; color: #475569">
+          The app files did not arrive. Check your connection and try again. Any
+          work saved on this device is still here.
+        </p>
+        <button
+          id="boot-reload"
+          type="button"
+          style="
+            margin-top: 1.25rem;
+            min-height: 44px;
+            width: 100%;
+            border: 0;
+            border-radius: 0.75rem;
+            background: #0f6b3f;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+          "
+        >
+          Reload page
+        </button>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var root = document.getElementById('root');
+        var fallback = document.getElementById('boot-fallback');
+        var reload = document.getElementById('boot-reload');
+        if (!root || !fallback) return;
+
+        if (reload) {
+          reload.addEventListener('click', function () {
+            window.location.reload();
+          });
+        }
+
+        // Give React 10 seconds to mount. If the root is still empty, the
+        // bundle was blocked or missing, so show a way out instead of a blank
+        // screen.
+        window.setTimeout(function () {
+          if (root.childElementCount === 0) fallback.style.display = 'flex';
+        }, 10000);
+      })();
+    </script>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

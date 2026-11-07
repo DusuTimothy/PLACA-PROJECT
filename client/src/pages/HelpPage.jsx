@@ -70,8 +70,8 @@ export default function HelpPage() {
     if (!term) return guides;
     return guides.filter(
       (guide) =>
-        guide.title.toLowerCase().includes(term) ||
-        guide.body_md.toLowerCase().includes(term)
+        String(guide.title || '').toLowerCase().includes(term) ||
+        String(guide.body_md || '').toLowerCase().includes(term)
     );
   }, [guides, search]);
 

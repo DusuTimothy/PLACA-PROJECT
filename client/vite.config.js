@@ -87,6 +87,9 @@ export default defineConfig({
         // The public page is not cached as an app shell; only the signed-in
         // application uses the service worker.
         globPatterns: ['**/*.{js,css,svg,png,woff2}'],
+        // Remove precache entries from older deployments so a stale shell
+        // cannot point at hashed bundles that no longer exist.
+        cleanupOutdatedCaches: true,
         navigateFallback: '/app.html',
         navigateFallbackAllowlist: [/^\/app(\/|$)/],
       },
