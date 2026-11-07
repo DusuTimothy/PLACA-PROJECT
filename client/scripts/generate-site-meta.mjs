@@ -19,6 +19,7 @@
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { loadEnv } from 'vite';
 
 const distDir = path.resolve(process.cwd(), 'dist');
 const indexPath = path.join(distDir, 'index.html');
@@ -28,7 +29,17 @@ if (!existsSync(indexPath)) {
   process.exit(1);
 }
 
-const configured = (process.env.SITE_URL || '').trim();
+const configured = (() => {
+  if (process.env.SITE_URL) return process.env.SITE_URL.trim();
+
+  // Vite loads .env from the client directory. Fall back to the repository
+  // root .env as well, so `cd client && npm run build` honours the same
+  // SITE_URL as Docker Compose. Shell variables still win.
+  const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development';
+  const clientEnv = loadEnv(mode, process.cwd(), '');
+  const rootEnv = loadEnv(mode, path.resolve(process.cwd(), '..'), '');
+  return String({ ...rootEnv, ...clientEnv }.SITE_URL || '').trim();
+})();
 
 if (!configured) {
   console.log(

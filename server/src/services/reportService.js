@@ -36,6 +36,10 @@ const { canAccessOrganization } = require('../middleware/ownership');
 const { ROLES, PLACA_ROLES } = require('../middleware/rbac');
 const { recordAudit } = require('./auditService');
 const { findOrganizationOrThrow } = require('./organizationService');
+const {
+  notifyPlacaOfficers,
+  notifyOrganizationPartners,
+} = require('./notificationService');
 
 const REPORT_INCLUDE = [
   {
@@ -905,6 +909,13 @@ async function submitReport(actor, id) {
       consistency_checked_at: new Date().toISOString(),
     };
     await report.save({ transaction });
+    await notifyPlacaOfficers({
+      kind: 'report',
+      title: 'Report submitted for review',
+      body: `${report.organization.name} submitted a report for ${exportPeriod(report)}.`,
+      link: `/reports/${report.id}`,
+      options: { transaction },
+    });
   });
 
   await recordAudit({
@@ -955,6 +966,15 @@ async function reviewReport(actor, id, { decision, reason }) {
       report.return_reason = reason;
     }
     await report.save({ transaction });
+    await notifyOrganizationPartners(report.organization_id, {
+      kind: 'report',
+      title: validate ? 'Report validated' : 'Report returned for correction',
+      body: validate
+        ? `Your report for ${exportPeriod(report)} was validated by PLACA.`
+        : `Your report for ${exportPeriod(report)} was returned. PLACA's note: ${reason}`,
+      link: `/reports/${report.id}`,
+      options: { transaction },
+    });
   });
 
   await recordAudit({

@@ -13,6 +13,7 @@ const path = require('path');
 const { Sequelize, DataTypes } = require('sequelize');
 const env = require('../config/env');
 const logger = require('../config/logger');
+const { buildDialectOptions } = require('../config/databaseSsl');
 const applyAuditHooks = require('./auditHooks');
 
 const sequelize = new Sequelize(env.DB_NAME, env.DB_USER, env.DB_PASSWORD, {
@@ -20,6 +21,8 @@ const sequelize = new Sequelize(env.DB_NAME, env.DB_USER, env.DB_PASSWORD, {
   port: env.DB_PORT,
   dialect: 'postgres',
   timezone: '+00:00',
+  // TLS for managed PostgreSQL (Aiven). Empty for local development.
+  dialectOptions: buildDialectOptions(env),
   logging: env.DB_LOGGING === 'true' ? (message) => logger.debug(message) : false,
   define: {
     underscored: true,

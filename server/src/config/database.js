@@ -12,6 +12,8 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') });
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
+const { buildDialectOptions } = require('./databaseSsl');
+
 const base = {
   username: process.env.DB_USER || 'placa',
   password: process.env.DB_PASSWORD || 'placa_password',
@@ -20,6 +22,9 @@ const base = {
   port: Number(process.env.DB_PORT || 5432),
   dialect: 'postgres',
   timezone: '+00:00',
+  // TLS settings for hosted databases (Aiven and similar). Empty for local
+  // PostgreSQL, where DB_SSL is unset/false.
+  dialectOptions: buildDialectOptions(process.env),
   define: {
     underscored: true,
     freezeTableName: true,

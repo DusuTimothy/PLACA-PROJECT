@@ -337,11 +337,42 @@ npm run dev            # http://localhost:5000
 # Client (second terminal)
 cd client
 npm install
+cp .env.example .env   # optional: VITE_API_URL, VITE_PROXY_TARGET, SITE_URL
 npm run dev            # http://localhost:5173, proxies /api to :5000
 ```
 
+The client has its own `client/.env` because Vite reads `.env` files from the
+client directory, not the repository root. Only `VITE_*` variables reach browser
+code; `SITE_URL` is used by the post-build script. When running through Docker
+Compose, the root `.env` is passed to the client container instead.
+
 Set `DB_HOST=localhost` (and the published port) in `.env` when the database is
 not running inside Compose.
+
+### Connecting to Aiven PostgreSQL
+
+Aiven requires TLS with its own CA. Download `ca.pem` from the service's
+**Connection information** page, place it in `server/src/certs/` (the Compose
+server service mounts `server/` at `/app`), and set:
+
+```bash
+DB_HOST=<service>.aivencloud.com
+DB_PORT=<port>
+DB_NAME=defaultdb
+DB_USER=avnadmin
+DB_PASSWORD=<password>
+DB_SSL=true
+DB_SSL_CA=./src/certs/aiven-ca.pem
+DB_SSL_REJECT_UNAUTHORIZED=true
+```
+
+The API and `sequelize-cli` (migrations and seeders) both read
+`server/src/config/databaseSsl.js`, so they use the same TLS settings.
+`DB_SSL_REJECT_UNAUTHORIZED=true` verifies the certificate chain and hostname.
+`DB_SSL_MODE` can be used instead of `DB_SSL` with libpq names (`disable`,
+`require`, `verify-ca`, `verify-full`); `require` encrypts without verifying,
+while the verifying modes check the chain. `DB_SSL_CA` also accepts the PEM text
+directly, and `*.pem` files are ignored by git.
 
 The analytics demo seeder adds clearly labeled synthetic reports for 2025–2026
 to the local database. The dashboard marks periods that include synthetic data.

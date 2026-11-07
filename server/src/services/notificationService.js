@@ -58,6 +58,7 @@ async function notifyPlacaOfficers(payload) {
     where: { role: { [Op.in]: PLACA_ROLES }, is_active: true },
     attributes: ['id'],
     raw: true,
+    transaction: payload.options?.transaction,
   });
   return notifyUsers(officers.map((row) => row.id), payload);
 }
@@ -72,6 +73,7 @@ async function notifyOrganizationPartners(organizationId, payload) {
     },
     attributes: ['id'],
     raw: true,
+    transaction: payload.options?.transaction,
   });
   return notifyUsers(partners.map((row) => row.id), payload);
 }

@@ -100,6 +100,30 @@ async function main() {
     warn('AI assistant is not configured', 'set GEMINI_API_KEY to enable the assistant');
   }
 
+  const databaseTlsEnabled =
+    env.DB_SSL === 'true' ||
+    (env.DB_SSL_MODE !== undefined && env.DB_SSL_MODE !== 'disable');
+  const localDatabaseHost = ['localhost', '127.0.0.1', '::1', 'postgres'].includes(
+    env.DB_HOST
+  );
+
+  if (databaseTlsEnabled) {
+    pass('Database TLS is enabled');
+    if (env.DB_SSL_MODE !== 'require' && !env.DB_SSL_CA) {
+      warn(
+        'Database TLS uses the system CA store',
+        'set DB_SSL_CA to the provider ca.pem (for example Aiven) to verify the server'
+      );
+    }
+  } else if (localDatabaseHost) {
+    pass('Database is local; TLS is not required');
+  } else {
+    warn(
+      'Remote database has TLS disabled',
+      'hosted providers such as Aiven require DB_SSL=true and DB_SSL_CA'
+    );
+  }
+
   try {
     await sequelize.authenticate();
     pass('Database connection works');

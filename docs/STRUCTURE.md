@@ -8,6 +8,7 @@ PLACA_PROJECT/
 │   │   └── site/               # Styles, scripts, logo and photographs
 │   ├── scripts/                # Post-build canonical/sitemap generation
 │   ├── app.html                # Entry for the signed-in app at /app
+│   ├── .env.example            # Vite variables (VITE_API_URL, VITE_PROXY_TARGET, SITE_URL)
 │   ├── src/
 │   │   ├── components/         # Layout, protected routes, UI primitives
 │   │   ├── context/            # Auth and language state

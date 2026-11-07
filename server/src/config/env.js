@@ -20,6 +20,14 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 const isProduction = process.env.NODE_ENV === 'production';
 const isTest = process.env.NODE_ENV === 'test';
 
+// Copies of .env.example leave optional settings as empty strings; treat those
+// as unset so enum validation does not reject them.
+const optionalEnum = (values) =>
+  z.preprocess(
+    (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
+    z.enum(values).optional()
+  );
+
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(5000),
@@ -30,6 +38,13 @@ const envSchema = z.object({
   DB_USER: z.string().default('placa'),
   DB_PASSWORD: z.string().default('placa_password'),
   DB_LOGGING: z.enum(['true', 'false']).default('false'),
+  // Hosted PostgreSQL (for example Aiven) requires TLS. DB_SSL is the simple
+  // switch; DB_SSL_MODE mirrors libpq's sslmode for providers that document it.
+  // DB_SSL_CA accepts a path to ca.pem or the PEM text itself.
+  DB_SSL: z.enum(['true', 'false']).default('false'),
+  DB_SSL_MODE: optionalEnum(['disable', 'require', 'verify-ca', 'verify-full']),
+  DB_SSL_CA: z.string().trim().optional(),
+  DB_SSL_REJECT_UNAUTHORIZED: optionalEnum(['true', 'false']),
 
   CLIENT_URL: z.string().url().default('http://localhost:5173'),
   // The signed-in React app lives under this path; "/" is the public site.

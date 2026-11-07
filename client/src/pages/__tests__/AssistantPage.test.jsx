@@ -162,4 +162,82 @@ describe('AssistantPage', () => {
     ).toBeInTheDocument();
     expect(screen.getByLabelText('Your message')).toHaveValue('Hello');
   });
+
+  it('puts a recognized spoken question into the message field', async () => {
+    const recognitions = [];
+    class MockSpeechRecognition {
+      start = vi.fn();
+      stop = vi.fn();
+
+      constructor() {
+        recognitions.push(this);
+      }
+    }
+
+    vi.stubGlobal('SpeechRecognition', MockSpeechRecognition);
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByRole('heading', { name: 'AI assistant' });
+    await user.click(screen.getByRole('button', { name: 'Speak your question' }));
+
+    expect(recognitions).toHaveLength(1);
+    expect(recognitions[0].start).toHaveBeenCalledOnce();
+    expect(screen.getByRole('button', { name: 'Listening…' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+
+    recognitions[0].onresult({
+      results: [[{ transcript: 'How do I submit a report?' }]],
+    });
+
+    expect(screen.getByLabelText('Your message')).toHaveValue('How do I submit a report?');
+  });
+
+  it('reads an assistant response aloud when enabled', async () => {
+    const utterances = [];
+    class MockSpeechSynthesisUtterance {
+      constructor(text) {
+        this.text = text;
+        utterances.push(this);
+      }
+    }
+    const speechSynthesis = {
+      cancel: vi.fn(),
+      speak: vi.fn(),
+    };
+    vi.stubGlobal('speechSynthesis', speechSynthesis);
+    vi.stubGlobal('SpeechSynthesisUtterance', MockSpeechSynthesisUtterance);
+
+    sendAssistantMessage.mockResolvedValueOnce({
+      conversation: {
+        id: 'conversation-1',
+        title: 'How do I report?',
+        language: 'en',
+      },
+      messages: [
+        { id: 'm1', role: 'user', content: 'How do I report?' },
+        { id: 'm2', role: 'assistant', content: 'Open the Reports page.' },
+      ],
+    });
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByRole('heading', { name: 'AI assistant' });
+    await user.click(screen.getByRole('button', { name: 'Read answers aloud' }));
+    await user.type(screen.getByLabelText('Your message'), 'How do I report?');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+
+    expect(await screen.findByText('Open the Reports page.')).toBeInTheDocument();
+    expect(utterances).toHaveLength(1);
+    expect(utterances[0]).toMatchObject({
+      text: 'Open the Reports page.',
+      lang: 'en-NG',
+      rate: 0.95,
+    });
+    expect(speechSynthesis.speak).toHaveBeenCalledWith(utterances[0]);
+  });
 });
