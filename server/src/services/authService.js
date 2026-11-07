@@ -18,6 +18,7 @@ const {
   sequelize,
 } = require('../models');
 const env = require('../config/env');
+const { isDemoAccount } = require('../config/demo');
 const logger = require('../config/logger');
 const AppError = require('../utils/AppError');
 const { hashPassword, verifyPassword } = require('../utils/password');
@@ -62,7 +63,8 @@ function publicUser(user) {
     lga_id: plain.lga_id || null,
     organization_id: plain.organization_id || null,
     language: plain.language,
-    must_change_password: Boolean(plain.must_change_password),
+    // Demo builds let the shared pitch accounts in without a password change.
+    must_change_password: isDemoAccount(user) ? false : Boolean(plain.must_change_password),
     verified: Boolean(plain.verified),
     is_active: Boolean(plain.is_active),
     totp_enabled: Boolean(plain.totp_enabled),
@@ -189,8 +191,9 @@ async function login({ identifier, password, totp_code: totpCode }, meta) {
     await bumpFailedLogin(user);
   }
 
-  // Second factor is mandatory for director and admin.
-  if (TFA_ROLES.has(user.role)) {
+  // Second factor is mandatory for director and admin. Demo accounts are
+  // exempt so a pitch build can be opened with one click.
+  if (!isDemoAccount(user) && TFA_ROLES.has(user.role)) {
     if (!user.totp_enabled) {
       const setupToken = signTotpSetupToken(user);
       await recordAudit({

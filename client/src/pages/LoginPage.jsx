@@ -7,6 +7,8 @@ import Button from '../components/ui/Button';
 import Alert from '../components/ui/Alert';
 import { useAuth } from '../context/AuthContext';
 import { errorMessage, getErrorCode, getFieldErrors } from '../utils/errors';
+import DemoAccountsPanel from '../components/auth/DemoAccountsPanel';
+import { demoModeEnabled } from '../config/demoAccounts';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -22,6 +24,34 @@ export default function LoginPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
+  function completeLogin(result) {
+    if (result.totpSetupRequired) {
+      // Kept in sessionStorage so a page refresh during setup can resume.
+      window.sessionStorage.setItem('placa_setup_token', result.setupToken);
+      navigate('/totp-setup', {
+        replace: true,
+        state: { setupToken: result.setupToken },
+      });
+      return;
+    }
+
+    if (result.user?.must_change_password) {
+      navigate('/change-password', { replace: true });
+      return;
+    }
+
+    navigate(location.state?.from || '/dashboard', { replace: true });
+  }
+
+  function showLoginError(submitError) {
+    const code = getErrorCode(submitError);
+    if (code === 'TOTP_REQUIRED') {
+      setNeedTotp(true);
+    }
+    setFieldErrors(getFieldErrors(submitError));
+    setError(errorMessage(submitError, t));
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setError('');
@@ -32,31 +62,27 @@ export default function LoginPage() {
       const payload = { identifier, password };
       if (needTotp) payload.totp_code = totpCode;
 
-      const result = await login(payload);
-
-      if (result.totpSetupRequired) {
-        // Kept in sessionStorage so a page refresh during setup can resume.
-        window.sessionStorage.setItem('placa_setup_token', result.setupToken);
-        navigate('/totp-setup', {
-          replace: true,
-          state: { setupToken: result.setupToken },
-        });
-        return;
-      }
-
-      if (result.user?.must_change_password) {
-        navigate('/change-password', { replace: true });
-        return;
-      }
-
-      navigate(location.state?.from || '/dashboard', { replace: true });
+      completeLogin(await login(payload));
     } catch (submitError) {
-      const code = getErrorCode(submitError);
-      if (code === 'TOTP_REQUIRED') {
-        setNeedTotp(true);
-      }
-      setFieldErrors(getFieldErrors(submitError));
-      setError(errorMessage(submitError, t));
+      showLoginError(submitError);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDemoSignIn(account) {
+    setError('');
+    setFieldErrors({});
+    setIdentifier(account.email);
+    setPassword(account.password);
+    setSubmitting(true);
+
+    try {
+      completeLogin(
+        await login({ identifier: account.email, password: account.password })
+      );
+    } catch (submitError) {
+      showLoginError(submitError);
     } finally {
       setSubmitting(false);
     }
@@ -127,6 +153,10 @@ export default function LoginPage() {
           <span className="text-slate-500">{t('auth.temporaryNote')}</span>
         </div>
       </div>
+
+      {demoModeEnabled && (
+        <DemoAccountsPanel onSignIn={handleDemoSignIn} busy={submitting} />
+      )}
     </AuthLayout>
   );
 }

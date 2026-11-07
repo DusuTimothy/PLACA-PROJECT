@@ -11,6 +11,7 @@
 const { User } = require('../models');
 const { verifyAccessToken } = require('../utils/tokens');
 const { setContextUser } = require('../utils/requestContext');
+const { isDemoAccount } = require('../config/demo');
 const AppError = require('../utils/AppError');
 const asyncHandler = require('../utils/asyncHandler');
 
@@ -45,7 +46,7 @@ const authenticate = asyncHandler(async (req, res, next) => {
  * Mounted on data routers, not on /auth/change-password or /auth/logout.
  */
 function requirePasswordChanged(req, res, next) {
-  if (req.user.must_change_password) {
+  if (req.user.must_change_password && !isDemoAccount(req.user)) {
     return next(
       AppError.forbidden(
         'PASSWORD_CHANGE_REQUIRED',

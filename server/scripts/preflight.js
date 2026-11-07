@@ -49,6 +49,15 @@ async function main() {
     warn(`NODE_ENV is "${env.NODE_ENV}", not "production"`);
   }
 
+  if (env.demoMode) {
+    warn(
+      'DEMO_MODE is on: demo accounts skip password change and TOTP',
+      'Turn DEMO_MODE off before real users or real data are added.'
+    );
+  } else {
+    pass('DEMO_MODE is off');
+  }
+
   const devSecrets = [
     ['JWT_ACCESS_SECRET', env.JWT_ACCESS_SECRET],
     ['JWT_REFRESH_SECRET', env.JWT_REFRESH_SECRET],

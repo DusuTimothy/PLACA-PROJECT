@@ -55,6 +55,24 @@ const envSchema = z.object({
   // SameSite=None; a same-origin nginx deployment can set "lax" explicitly.
   COOKIE_SAME_SITE: optionalEnum(['lax', 'strict', 'none']),
 
+  // Review/demo deployments only. When true, the accounts listed in
+  // DEMO_ACCOUNTS skip the forced-password-change and TOTP steps so a public
+  // pitch build can be explored quickly. Never enable this for real users.
+  DEMO_MODE: z.enum(['true', 'false']).default('false'),
+  DEMO_ACCOUNTS: z
+    .string()
+    .default(
+      [
+        'admin@placa.gov.ng',
+        'director@placa.gov.ng',
+        'officer@placa.gov.ng',
+        'laca.josnorth@placa.gov.ng',
+        'laca.barkinladi@placa.gov.ng',
+        'partner@hopefoundation.org',
+        'partner@ruralhealth.ng',
+      ].join(',')
+    ),
+
   JWT_ACCESS_SECRET: z.string().default('dev-access-secret-change-me-please-32'),
   JWT_REFRESH_SECRET: z.string().default('dev-refresh-secret-change-me-please-32'),
   JWT_ACCESS_TTL: z.string().default('15m'),
@@ -158,5 +176,9 @@ module.exports = {
   isDevelopment: !isProduction && !isTest,
   corsOrigins: env.CORS_ORIGINS.split(',')
     .map((origin) => origin.trim().replace(/\/+$/, ''))
+    .filter(Boolean),
+  demoMode: env.DEMO_MODE === 'true',
+  demoAccounts: env.DEMO_ACCOUNTS.split(',')
+    .map((email) => email.trim().toLowerCase())
     .filter(Boolean),
 };

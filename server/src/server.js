@@ -28,6 +28,12 @@ async function start() {
 
   server = app.listen(env.PORT, '0.0.0.0', () => {
     logger.info(`PLACA API listening on port ${env.PORT} (${env.NODE_ENV})`);
+    if (env.demoMode) {
+      logger.warn(
+        'DEMO_MODE is enabled: shared demo accounts skip password change and TOTP. ' +
+          'Turn it off before real users or real data are added.'
+      );
+    }
   });
 
   aggregationCron.start();

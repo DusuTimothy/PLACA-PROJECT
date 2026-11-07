@@ -546,6 +546,37 @@ Director and admin accounts must set up an authenticator app (Google
 Authenticator, Authy, 1Password) the first time they sign in. **Do not use these
 demo passwords in production.**
 
+### Review and pitch demo mode
+
+For a public review or pitch build, the sign-in page can list the demo accounts
+and sign people in with one click, skipping the forced password change and TOTP
+steps for those accounts only.
+
+On the Render API:
+
+```bash
+DEMO_MODE=true
+# Optional. Defaults to the seven seeded demo addresses.
+# DEMO_ACCOUNTS=admin@placa.gov.ng,director@placa.gov.ng,officer@placa.gov.ng
+```
+
+On the Vercel client (then redeploy, because Vite embeds these at build time):
+
+```bash
+VITE_DEMO_MODE=true
+# Optional. Defaults to ChangeMe#2026.
+# VITE_DEMO_PASSWORD=ChangeMe#2026
+```
+
+The sign-in page then shows a **Demo accounts** panel with the role, email and
+shared password for each account, plus a one-click **Sign in** button. The API
+only exempts addresses listed in `DEMO_ACCOUNTS`; every other account keeps the
+normal password-change and TOTP rules.
+
+Turn both flags off before real users or real data are added. With them off,
+the seeded accounts return to the forced password change and TOTP requirements.
+Do not store real personal or health information while demo mode is on.
+
 ### The local demo database in this workspace
 
 The long-running development database has moved past the forced password

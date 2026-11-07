@@ -78,7 +78,11 @@
     "verifyIntro": "Press the button to confirm this email address.",
     "verifyButton": "Confirm email",
     "backToSignIn": "Back to sign in",
-    "temporaryNote": "Temporary passwords are read aloud. Never share yours after you change it."
+    "temporaryNote": "Temporary passwords are read aloud. Never share yours after you change it.",
+    "demoHeading": "Demo accounts",
+    "demoIntro": "Choose any role to explore the platform. These logins are shared and are only for review and pitching.",
+    "demoSignIn": "Sign in",
+    "demoWarning": "Demo data only. Do not enter real personal or health information."
   },
   "dashboard": {
     "title": "Dashboard",

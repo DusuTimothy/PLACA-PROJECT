@@ -78,7 +78,11 @@
     "verifyIntro": "Danna maɓallin don tabbatar da wannan adireshin imel.",
     "verifyButton": "Tabbatar da imel",
     "backToSignIn": "Koma zuwa shiga",
-    "temporaryNote": "Kalmar sirri ta wucin gadi ana faɗa ta da baki. Kada ka raba naka bayan ka canza ta."
+    "temporaryNote": "Kalmar sirri ta wucin gadi ana faɗa ta da baki. Kada ka raba naka bayan ka canza ta.",
+    "demoHeading": "Asusun gwaji",
+    "demoIntro": "Zaɓi kowane matsayi don bincika dandalin. Waɗannan hanyoyin shiga na kowa ne, don bita da gabatarwa kawai.",
+    "demoSignIn": "Shiga",
+    "demoWarning": "Bayanan gwaji ne kawai. Kada ka shigar da ainihin bayanan sirri ko na lafiya."
   },
   "dashboard": {
     "title": "Babban shafi",
