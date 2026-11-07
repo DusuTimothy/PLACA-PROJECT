@@ -81,14 +81,22 @@ function hashToken(token) {
   return createHash('sha256').update(token).digest('hex');
 }
 
+function cookieSameSite() {
+  if (env.COOKIE_SAME_SITE) return env.COOKIE_SAME_SITE;
+  // The Vercel + Render split is cross-site, and browsers only send the
+  // refresh cookie on cross-site requests when SameSite=None with Secure.
+  return env.isProduction ? 'none' : 'lax';
+}
+
 function refreshCookieOptions(expiresAt) {
-  return {
+  const options = {
     httpOnly: true,
     secure: env.isProduction,
-    sameSite: 'lax',
+    sameSite: cookieSameSite(),
     path: '/api/auth',
-    expires: expiresAt,
   };
+  if (expiresAt) options.expires = expiresAt;
+  return options;
 }
 
 module.exports = {

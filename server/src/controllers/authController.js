@@ -6,7 +6,6 @@
  * services/authService.js.
  */
 
-const env = require('../config/env');
 const authService = require('../services/authService');
 const userService = require('../services/userService');
 const { refreshCookieOptions } = require('../utils/tokens');
@@ -18,12 +17,7 @@ function setRefreshCookie(res, session) {
 }
 
 function clearRefreshCookie(res) {
-  res.clearCookie(COOKIE_NAME, {
-    httpOnly: true,
-    secure: env.isProduction,
-    sameSite: 'lax',
-    path: '/api/auth',
-  });
+  res.clearCookie(COOKIE_NAME, refreshCookieOptions());
 }
 
 function sessionResponse(res, session) {

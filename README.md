@@ -398,6 +398,48 @@ If you prefer not to commit the certificate, use one of these instead:
 
 Other `*.pem` and `*.key` files remain ignored by git.
 
+#### Deploying the client on Vercel
+
+Vercel serves the built files only; it does not run the API. Keep the API on
+Render (or another host) and tell the client where it is.
+
+Vercel project settings:
+
+- **Root Directory:** `client`
+- **Framework Preset:** Vite
+- **Build Command:** `npm run build`
+- **Output Directory:** `dist`
+
+Environment variables (Project Settings → Environment Variables):
+
+```bash
+VITE_API_URL=https://placa-project.onrender.com/api
+SITE_URL=https://placa-project.vercel.app
+```
+
+Vite embeds `VITE_*` values at build time, so redeploy after changing them.
+`client/.env` is ignored by git and is not uploaded by Vercel.
+
+`client/vercel.json` rewrites `/app` and `/app/*` to `app.html`, so invitation,
+reset, and sign-in links such as
+`https://placa-project.vercel.app/app/accept-invitation?token=...` open the app
+instead of a Vercel 404 page.
+
+On the Render API, set the client origin without a trailing slash:
+
+```bash
+CLIENT_URL=https://placa-project.vercel.app
+CORS_ORIGINS=https://placa-project.vercel.app
+```
+
+Because the two hosts are different sites, the refresh cookie defaults to
+`SameSite=None; Secure` in production. If client and API share one origin (the
+nginx Docker deployment), set `COOKIE_SAME_SITE=lax`.
+
+If a 404 appears only after submitting a form, `VITE_API_URL` is missing:
+without it the browser sends the request to `/api` on the Vercel domain, which
+has no API.
+
 The analytics demo seeder adds clearly labeled synthetic reports for 2025–2026
 to the local database. The dashboard marks periods that include synthetic data.
 To remove only this dataset and rebuild the affected summaries, run

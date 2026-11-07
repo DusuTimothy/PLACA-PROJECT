@@ -50,6 +50,10 @@ const envSchema = z.object({
   // The signed-in React app lives under this path; "/" is the public site.
   APP_BASE_PATH: z.string().default('/app'),
   CORS_ORIGINS: z.string().default('http://localhost:5173'),
+  // Cross-site cookies are needed when the client (for example Vercel) and the
+  // API (for example Render) are on different domains. Production defaults to
+  // SameSite=None; a same-origin nginx deployment can set "lax" explicitly.
+  COOKIE_SAME_SITE: optionalEnum(['lax', 'strict', 'none']),
 
   JWT_ACCESS_SECRET: z.string().default('dev-access-secret-change-me-please-32'),
   JWT_REFRESH_SECRET: z.string().default('dev-refresh-secret-change-me-please-32'),
@@ -153,6 +157,6 @@ module.exports = {
   isTest,
   isDevelopment: !isProduction && !isTest,
   corsOrigins: env.CORS_ORIGINS.split(',')
-    .map((origin) => origin.trim())
+    .map((origin) => origin.trim().replace(/\/+$/, ''))
     .filter(Boolean),
 };
