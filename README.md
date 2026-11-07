@@ -319,7 +319,9 @@ cached for a year; HTML, the service worker and the PWA manifest are never
 cached. Shared security headers live in `nginx/security-headers.conf`.
 
 There is no TLS block yet. When a domain and certificate are available, add a
-`listen 443 ssl` server and enable HSTS.
+`listen 443 ssl` server and enable HSTS. Speech input in the assistant requires
+a secure context, so voice questions only work on `localhost` until HTTPS is
+enabled; read-aloud still works over plain HTTP.
 
 ## Run without Docker
 

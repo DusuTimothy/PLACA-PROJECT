@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import AssistantPage from '../AssistantPage';
@@ -45,6 +45,7 @@ function renderPage() {
 describe('AssistantPage', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
+    vi.unstubAllGlobals();
     await i18n.changeLanguage('en');
 
     refreshSession.mockResolvedValue({
@@ -239,5 +240,88 @@ describe('AssistantPage', () => {
       rate: 0.95,
     });
     expect(speechSynthesis.speak).toHaveBeenCalledWith(utterances[0]);
+  });
+
+  it('explains when microphone permission is denied', async () => {
+    const recognitions = [];
+    class MockSpeechRecognition {
+      start = vi.fn();
+      stop = vi.fn();
+
+      constructor() {
+        recognitions.push(this);
+      }
+    }
+
+    vi.stubGlobal('SpeechRecognition', MockSpeechRecognition);
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByRole('heading', { name: 'AI assistant' });
+    await user.click(screen.getByRole('button', { name: 'Speak your question' }));
+
+    act(() => {
+      recognitions[0].onerror({ error: 'not-allowed' });
+    });
+
+    expect(
+      await screen.findByText(/Microphone access was blocked/i)
+    ).toBeInTheDocument();
+  });
+
+  it('explains that voice input needs HTTPS when the context is insecure', async () => {
+    class MockSpeechRecognition {
+      start = vi.fn();
+      stop = vi.fn();
+    }
+
+    vi.stubGlobal('SpeechRecognition', MockSpeechRecognition);
+    vi.stubGlobal('isSecureContext', false);
+
+    renderPage();
+
+    expect(await screen.findByText(/Voice input needs HTTPS/i)).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Speak your question' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('falls back to an installed voice when the exact language is missing', async () => {
+    const voices = [{ lang: 'en-GB', name: 'English (United Kingdom)', default: true }];
+    const utterances = [];
+    class MockSpeechSynthesisUtterance {
+      constructor(text) {
+        this.text = text;
+        utterances.push(this);
+      }
+    }
+    const speechSynthesis = {
+      cancel: vi.fn(),
+      speak: vi.fn(),
+      getVoices: vi.fn(() => voices),
+    };
+    vi.stubGlobal('speechSynthesis', speechSynthesis);
+    vi.stubGlobal('SpeechSynthesisUtterance', MockSpeechSynthesisUtterance);
+
+    sendAssistantMessage.mockResolvedValueOnce({
+      conversation: { id: 'conversation-1', title: 'How do I report?', language: 'en' },
+      messages: [
+        { id: 'm1', role: 'user', content: 'How do I report?' },
+        { id: 'm2', role: 'assistant', content: 'Open the Reports page.' },
+      ],
+    });
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByRole('heading', { name: 'AI assistant' });
+    await user.click(screen.getByRole('button', { name: 'Read answers aloud' }));
+    await user.type(screen.getByLabelText('Your message'), 'How do I report?');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+
+    expect(await screen.findByText('Open the Reports page.')).toBeInTheDocument();
+    expect(utterances[0].voice).toBe(voices[0]);
+    expect(utterances[0].lang).toBe('en-GB');
   });
 });

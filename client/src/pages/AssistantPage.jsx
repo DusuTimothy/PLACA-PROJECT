@@ -15,6 +15,20 @@ import { formatDate } from '../utils/roles';
 
 const MAX_MESSAGE_LENGTH = 2000;
 
+function voiceErrorMessage(code, t) {
+  switch (code) {
+    case 'not-allowed':
+    case 'service-not-allowed':
+      return t('assistant.micDenied');
+    case 'audio-capture':
+      return t('assistant.micUnavailable');
+    case 'language-not-supported':
+      return t('assistant.voiceLanguage');
+    default:
+      return t('assistant.voiceError');
+  }
+}
+
 function MessageBubble({ message, t, language }) {
   const isUser = message.role === 'user';
   return (
@@ -66,11 +80,18 @@ export default function AssistantPage() {
   const endRef = useRef(null);
   const recognitionRef = useRef(null);
 
-  const supportsRecognition =
+  // SpeechRecognition is a powerful feature: browsers only expose it on HTTPS
+  // or localhost. Plain HTTP on a LAN address or server IP cannot use the mic.
+  const secureContext =
+    typeof window === 'undefined' || window.isSecureContext !== false;
+  const hasRecognitionApi =
     typeof window !== 'undefined' &&
     Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
+  const supportsRecognition = hasRecognitionApi && secureContext;
   const supportsSpeech =
-    typeof window !== 'undefined' && typeof window.speechSynthesis !== 'undefined';
+    typeof window !== 'undefined' &&
+    typeof window.speechSynthesis !== 'undefined' &&
+    typeof window.SpeechSynthesisUtterance !== 'undefined';
 
   useEffect(() => {
     let active = true;
@@ -109,12 +130,55 @@ export default function AssistantPage() {
     if (supportsSpeech) window.speechSynthesis.cancel();
   }
 
+  // Prefer an installed voice for the interface language, then any voice for
+  // that language, then the browser default. This avoids silence on devices
+  // that have no exact en-NG or ha-NG voice.
+  function pickVoice(preferredLang) {
+    if (!supportsSpeech || typeof window.speechSynthesis.getVoices !== 'function') {
+      return null;
+    }
+    let voices = [];
+    try {
+      voices = window.speechSynthesis.getVoices() || [];
+    } catch {
+      return null;
+    }
+    if (voices.length === 0) return null;
+
+    const wanted = String(preferredLang || '').toLowerCase();
+    const base = wanted.split('-')[0];
+    return (
+      voices.find((voice) => String(voice.lang || '').toLowerCase() === wanted) ||
+      voices.find((voice) =>
+        String(voice.lang || '').toLowerCase().startsWith(`${base}-`)
+      ) ||
+      voices.find((voice) => String(voice.lang || '').toLowerCase() === base) ||
+      voices.find((voice) => voice.default) ||
+      null
+    );
+  }
+
   function speak(text) {
     if (!supportsSpeech || !text) return;
     window.speechSynthesis.cancel();
+    if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+
+    const preferredLang = language === 'ha' ? 'ha-NG' : 'en-NG';
+    const voice = pickVoice(preferredLang);
     const utterance = new window.SpeechSynthesisUtterance(text);
-    utterance.lang = language === 'ha' ? 'ha-NG' : 'en-NG';
+    if (voice) {
+      utterance.voice = voice;
+      utterance.lang = voice.lang || preferredLang;
+    } else {
+      utterance.lang = preferredLang;
+    }
     utterance.rate = 0.95;
+    utterance.onerror = (event) => {
+      const reason = event?.error;
+      if (reason && reason !== 'canceled' && reason !== 'interrupted') {
+        setError(t('assistant.voicePlaybackError'));
+      }
+    };
     window.speechSynthesis.speak(utterance);
   }
 
@@ -156,11 +220,7 @@ export default function AssistantPage() {
       }
     };
     recognition.onerror = (event) => {
-      setError(
-        event?.error === 'not-allowed'
-          ? t('assistant.micDenied')
-          : t('assistant.voiceError')
-      );
+      setError(voiceErrorMessage(event?.error, t));
       setListening(false);
     };
     recognition.onend = () => setListening(false);
@@ -456,7 +516,9 @@ export default function AssistantPage() {
                   </button>
                 ) : (
                   <p className="text-xs leading-relaxed text-slate-500">
-                    {t('assistant.voiceUnsupported')}
+                    {hasRecognitionApi && !secureContext
+                      ? t('assistant.voiceInsecure')
+                      : t('assistant.voiceUnsupported')}
                   </p>
                 )}
 

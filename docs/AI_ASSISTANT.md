@@ -143,6 +143,16 @@ Voice is a browser feature, not a server upload:
 - **Read aloud** uses `speechSynthesis` to read assistant answers. It can be
   switched off at any time.
 
+Both features need a secure browser context: HTTPS or `http://localhost`.
+`SpeechRecognition` is unavailable on plain HTTP, so access through a server IP
+or LAN address will not show the voice input control. Production nginx allows
+the microphone for its own origin with `Permissions-Policy: microphone=(self)`;
+the app never asks for camera or location access.
+
+Read aloud picks an installed voice for the interface language, then falls back
+to the browser default. Some Linux and Android builds ship no speech voices, in
+which case the answer is shown but cannot be spoken.
+
 Voice controls are on the full assistant page; the floating widget focuses on
 fast text chat. If a browser does not support one of these APIs, the page hides
 that control and explains that typing still works. Speech recognition
