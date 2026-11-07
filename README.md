@@ -374,7 +374,29 @@ The API and `sequelize-cli` (migrations and seeders) both read
 `DB_SSL_MODE` can be used instead of `DB_SSL` with libpq names (`disable`,
 `require`, `verify-ca`, `verify-full`); `require` encrypts without verifying,
 while the verifying modes check the chain. `DB_SSL_CA` also accepts the PEM text
-directly, and `*.pem` files are ignored by git.
+directly.
+
+#### Deploying with TLS on Render
+
+A hosted service cannot use a certificate path that only exists on your laptop.
+The repository therefore keeps the public Aiven CA at
+`server/src/certs/aiven-ca.pem` (`.gitignore` allows that one file because it
+contains no private key), and Render can use:
+
+```bash
+DB_SSL_MODE=require
+DB_SSL_CA=src/certs/aiven-ca.pem
+DB_SSL_REJECT_UNAUTHORIZED=true
+```
+
+If you prefer not to commit the certificate, use one of these instead:
+
+- paste the PEM text into the `DB_SSL_CA` environment variable, using `\n` for
+  line breaks, or
+- add the file as a Render **Secret File** and set `DB_SSL_CA` to its absolute
+  mount path (for example `/etc/secrets/aiven-ca.pem`).
+
+Other `*.pem` and `*.key` files remain ignored by git.
 
 The analytics demo seeder adds clearly labeled synthetic reports for 2025–2026
 to the local database. The dashboard marks periods that include synthetic data.

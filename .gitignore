@@ -9,6 +9,9 @@ server/node_modules/
 !.env.example
 *.pem
 *.key
+# Public CA bundles contain no private key and are needed by hosted deploys
+# (Render, Aiven). Keep the Aiven CA available to DB_SSL_CA.
+!server/src/certs/aiven-ca.pem
 
 # Build output
 client/dist/

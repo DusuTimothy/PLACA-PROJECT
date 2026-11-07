@@ -73,7 +73,9 @@ function loadCaCertificate(rawValue) {
 
   if (!match) {
     throw new Error(
-      `DB_SSL_CA file not found: "${raw}". Looked in: ${unique.join(', ')}`
+      `DB_SSL_CA file not found: "${raw}". Looked in: ${unique.join(', ')}. ` +
+        'On a hosted platform, commit the public CA file or set DB_SSL_CA to ' +
+        'the PEM text itself (or to a mounted secret-file path).'
     );
   }
 
